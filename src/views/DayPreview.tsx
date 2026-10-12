@@ -46,7 +46,7 @@ export function DayPreview({ programId, levelIndex, dayId }: { programId: Progra
           {isCurrent ? 'Dit nuværende level' : level.name}
           {day.focus ? ` · ${day.focus}` : ''}
         </p>
-        <h1 className="display">{day.label}</h1>
+        <h1 className="display day-title">{day.label}</h1>
         <p className="muted">
           {day.exercises.length} øvelser · {totalSets} sæt · ca. {minutes} min
           {legs ? ` · ${legs} benøvelse${legs > 1 ? 'r' : ''}` : ''}

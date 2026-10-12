@@ -56,7 +56,7 @@ export function Setup({ dayId }: { dayId: string }) {
           {level.name}
           {day.focus ? ` · ${day.focus}` : ''}
         </p>
-        <h1 className="display">{day.label}</h1>
+        <h1 className="display day-title">{day.label}</h1>
         <p className="muted">
           {included.length} øvelser · {totalSets} sæt · ca. {minutes} min
           {last ? ` · Sidst ${relativeDay(last.endedAt)}` : ''}

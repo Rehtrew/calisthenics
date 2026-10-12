@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { Session } from '../lib/types'
 import { monthCalendar, weekStreak } from '../lib/streak'
 import { cap, fmtMonth } from '../lib/format'
@@ -60,7 +60,7 @@ export function StreakCalendar({ sessions }: { sessions: Session[] }) {
         ))}
         <span className="cal-track" style={{ gridRow: `2 / span ${weeks.length}` }} aria-hidden="true" />
         {weeks.map((week, r) => (
-          <WeekRow key={r} row={r + 2} week={week} streakWeeks={streak.weeks} pending={streak.pending} />
+          <WeekRow key={r} row={r + 2} week={week} streakWeeks={streak.weeks} pending={streak.pending} offset={weeks.slice(0, r).reduce((n, w) => n + w.days.filter((d) => d.trained).length, 0)} />
         ))}
       </div>
     </div>
@@ -72,25 +72,34 @@ function WeekRow({
   week,
   streakWeeks,
   pending,
+  offset,
 }: {
   row: number
   week: ReturnType<typeof monthCalendar>[number]
   streakWeeks: number
   pending: boolean
+  offset: number
 }) {
+  let trainedSeen = 0
   return (
     <>
-      {week.days.map((d) => (
-        <span
-          key={d.key}
-          className={`cal-day ${d.inMonth ? '' : 'out'} ${d.trained ? 'on' : ''} ${d.future ? 'future' : ''} ${d.today ? 'today' : ''}`}
-          title={d.trained ? `${d.trained} træning${d.trained > 1 ? 'er' : ''}` : undefined}
-          style={{ gridRow: row }}
-        >
-          {d.trained ? barbell : d.dayOfMonth}
-        </span>
-      ))}
-      <span className={`cal-week ${week.status} ${week.status === 'current' && pending ? 'pending' : ''}`} style={{ gridRow: row }}>
+      {week.days.map((d) => {
+        const i = d.trained ? offset + trainedSeen++ : 0
+        return (
+          <span
+            key={d.key}
+            className={`cal-day ${d.inMonth ? '' : 'out'} ${d.trained ? 'on pop' : ''} ${d.future ? 'future' : ''} ${d.today ? 'today' : ''}`}
+            title={d.trained ? `${d.trained} træning${d.trained > 1 ? 'er' : ''}` : undefined}
+            style={{ gridRow: row, '--i': i } as CSSProperties}
+          >
+            {d.trained ? barbell : d.dayOfMonth}
+          </span>
+        )
+      })}
+      <span
+        className={`cal-week pop ${week.status} ${week.status === 'current' && pending ? 'pending' : ''}`}
+        style={{ gridRow: row, '--i': row + 4 } as CSSProperties}
+      >
         {week.status === 'done' && Icon.check}
         {week.status === 'current' && (
           <>

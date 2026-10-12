@@ -61,10 +61,10 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
       </section>
 
       <section className="stats">
-        <Stat value={fmtDuration(session.endedAt - session.startedAt)} label="Varighed" />
-        <Stat value={`${score.setsDone}/${score.setsPlanned}`} label="Sæt" />
-        <Stat value={score.reps} label="Reps i alt" />
-        <Stat value={kcal} unit="kcal" label={`Cirka, ved ${s.settings.weightKg} kg`} />
+        <Stat index={0} value={fmtDuration(session.endedAt - session.startedAt)} label="Varighed" />
+        <Stat index={1} value={`${score.setsDone}/${score.setsPlanned}`} label="Sæt" />
+        <Stat index={2} value={score.reps} label="Reps i alt" />
+        <Stat index={3} value={kcal} unit="kcal" label={`Cirka, ved ${s.settings.weightKg} kg`} />
       </section>
 
       <p className={`compare ${compareClass}`}>{compare}</p>

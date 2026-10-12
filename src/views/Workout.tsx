@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { abortWorkout, discardWorkout, extendRest, finishRest, logSet, undoLastSet, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { parseReps, unitLabel } from '../lib/reps'
@@ -129,16 +129,20 @@ function SetPanel({
 
   return (
     <>
-      <div className="screen-main swap">
-        <p className="eyebrow">
+      <div className="screen-main">
+        <p className="eyebrow rise" style={{ '--i': 0 } as CSSProperties}>
           Øvelse {a.exerciseIndex + 1} af {a.exercises.length} · sæt {a.setIndex + 1} af {ex.sets}
         </p>
-        <h1 className="exercise-title">{ex.name}</h1>
+        <h1 className="exercise-title rise" style={{ '--i': 1 } as CSSProperties}>
+          {ex.name}
+        </h1>
 
         {mode === 'ask' ? (
           <>
-            <div className="target">{target.value}</div>
-            <p className="target-unit">
+            <div className="target rise" style={{ '--i': 2 } as CSSProperties}>
+              {target.value}
+            </div>
+            <p className="target-unit rise" style={{ '--i': 3 } as CSSProperties}>
               {unitLabel(target.unit)}
               {target.hint ? ` · ${target.hint}` : ''}
             </p>
@@ -160,7 +164,7 @@ function SetPanel({
         )}
         {lastHint && <p className="last-hint">{lastHint}</p>}
 
-        <p className="next">
+        <p className="next rise" style={{ '--i': 4 } as CSSProperties}>
           Næste: <strong>{upNext.name}</strong> · {upNext.detail}
         </p>
       </div>
@@ -225,9 +229,13 @@ function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNex
 
   return (
     <>
-      <div className="screen-main swap">
-        <p className="eyebrow">Pause</p>
-        <div className="target rest-clock">{fmtClock(Math.ceil(remainingMs / 1000))}</div>
+      <div className="screen-main">
+        <p className="eyebrow rise" style={{ '--i': 0 } as CSSProperties}>
+          Pause
+        </p>
+        <div className="target rest-clock rise" style={{ '--i': 1 } as CSSProperties}>
+          {fmtClock(Math.ceil(remainingMs / 1000))}
+        </div>
         <div className="progress rest-progress">
           <span style={{ width: `${Math.min(100, (100 * remainingMs) / total)}%` }} />
         </div>

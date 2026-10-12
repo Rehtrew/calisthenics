@@ -27,6 +27,11 @@ export function Home() {
   const last = sorted.at(-1)
   const recent = sorted.slice(-4).reverse()
   const cols = level.days.length === 4 ? 2 : Math.min(3, level.days.length)
+  const rows = Math.ceil(level.days.length / cols)
+  const selectedIndex = Math.max(
+    0,
+    level.days.findIndex((d) => d.id === selected.id),
+  )
   const sync = useSyncStatus()
   const syncLine =
     sync.state === 'off'
@@ -59,7 +64,7 @@ export function Home() {
 
       <section className="hero">
         <p className="eyebrow">{isNext ? 'Næste træning' : 'Valgt træning'}</p>
-        <h1 className="display swap" key={selected.id}>
+        <h1 className="display day-title swap" key={selected.id}>
           {selected.label}
         </h1>
         <p className="muted">
@@ -76,7 +81,13 @@ export function Home() {
             {last.status === 'aborted' ? ' · afbrudt' : ''}
           </p>
         )}
-        <div className="day-chips" role="radiogroup" aria-label="Vælg dag" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+        <div
+          className="day-chips"
+          role="radiogroup"
+          aria-label="Vælg dag"
+          style={{ '--cols': cols, '--rows': rows, '--col': selectedIndex % cols, '--row': Math.floor(selectedIndex / cols) } as CSSProperties}
+        >
+          <span className="chips-thumb" aria-hidden="true" />
           {level.days.map((d, i) => {
             const lastForDay = sessionsForDay(s.sessions, programId, levelIndex, d.id).at(-1)
             return (
@@ -101,10 +112,10 @@ export function Home() {
       </section>
 
       <section className="stats">
-        <Stat value={s.sessions.length} label="Træninger i alt" />
-        <Stat value={countThisMonth(s.sessions)} label="Denne måned" />
-        <Stat value={avg ?? '–'} unit={avg != null ? '%' : undefined} label="Gennemsnit, sidste 5" />
-        <Stat value={atLevel} label={`Gennemført på ${level.name.toLowerCase()}`} />
+        <Stat index={0} value={s.sessions.length} label="Træninger i alt" />
+        <Stat index={1} value={countThisMonth(s.sessions)} label="Denne måned" />
+        <Stat index={2} value={avg ?? '–'} unit={avg != null ? '%' : undefined} label="Gennemsnit, sidste 5" />
+        <Stat index={3} value={atLevel} label={`Gennemført på ${level.name.toLowerCase()}`} />
       </section>
 
       <section className="section">

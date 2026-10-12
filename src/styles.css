@@ -187,8 +187,13 @@ ul {
 .display {
   font-size: clamp(64px, 22vw, 112px);
   font-weight: 500;
-  line-height: 0.95;
-  margin: 6px 0 12px;
+  line-height: 1.08;
+  margin: 2px 0 8px;
+}
+
+.day-title {
+  view-transition-name: day-title;
+  width: fit-content;
 }
 
 .display-unit {
@@ -396,22 +401,39 @@ ul {
 }
 
 .day-chips {
+  position: relative;
   display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
   gap: 8px;
   margin: 20px 0 24px;
 }
 
+.chips-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc((100% - (var(--cols, 3) - 1) * 8px) / var(--cols, 3));
+  height: calc((100% - (var(--rows, 1) - 1) * 8px) / var(--rows, 1));
+  border-radius: 16px;
+  background: var(--text);
+  transform: translate(calc(var(--col, 0) * (100% + 8px)), calc(var(--row, 0) * (100% + 8px)));
+  transition: transform 300ms var(--ease-out);
+}
+
 .chip {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
   padding: 12px 14px;
   border-radius: 16px;
-  background: var(--surface);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--border);
   min-width: 0;
   text-align: left;
-  transition: transform 160ms var(--ease-out), background-color 160ms ease, color 160ms ease;
+  transition: transform 160ms var(--ease-out), box-shadow 200ms ease, color 200ms ease;
 }
 
 .chip:active {
@@ -438,8 +460,12 @@ ul {
 }
 
 .chip.active {
-  background: var(--text);
+  box-shadow: none;
   color: var(--bg);
+}
+
+.chip small {
+  transition: color 200ms ease;
 }
 
 .chip.active small {
@@ -993,7 +1019,7 @@ ul {
 }
 
 .story-copy {
-  animation: fade-up 260ms var(--ease-out) 60ms backwards;
+  animation: slide-in 320ms var(--ease-out) 70ms backwards;
 }
 
 .story-head {
@@ -1015,8 +1041,8 @@ ul {
 .story-number {
   font-size: clamp(88px, 28vw, 150px);
   font-weight: 500;
-  line-height: 0.95;
-  animation: swap-in 240ms var(--ease-out);
+  line-height: 1.05;
+  animation: slide-in 320ms var(--ease-out);
 }
 
 .story-unit {
@@ -1208,7 +1234,7 @@ ul {
   }
 
   .chip:hover:not(.active) {
-    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--muted);
   }
 
   .row:hover .row-title,
@@ -1358,13 +1384,123 @@ ul {
 @keyframes swap-in {
   from {
     opacity: 0;
-    filter: blur(4px);
-    transform: translateY(4px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    filter: blur(0);
     transform: none;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* per-set content on the workout screen rises in with a small stagger */
+.rise {
+  animation: fade-up 320ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+/* calendar cells pop in one after another */
+.pop {
+  animation: pop-in 320ms var(--ease-out) backwards;
+  animation-delay: calc(60ms + min(var(--i, 0), 16) * 28ms);
+}
+
+/* screen-to-screen transitions (View Transitions API) */
+@supports (view-transition-name: none) {
+  .page,
+  .screen {
+    animation: none;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-out);
+  animation-fill-mode: both;
+}
+
+html[data-nav='forward']::view-transition-old(root) {
+  animation-name: vt-fade-out, vt-push-left;
+}
+
+html[data-nav='forward']::view-transition-new(root) {
+  animation-name: vt-fade-in, vt-enter-right;
+}
+
+html[data-nav='back']::view-transition-old(root) {
+  animation-name: vt-fade-out, vt-push-right;
+}
+
+html[data-nav='back']::view-transition-new(root) {
+  animation-name: vt-fade-in, vt-enter-left;
+}
+
+::view-transition-group(day-title) {
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-old(day-title),
+::view-transition-new(day-title) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-enter-right {
+  from {
+    transform: translateX(40px);
+  }
+}
+
+@keyframes vt-push-left {
+  to {
+    transform: translateX(-24px);
+  }
+}
+
+@keyframes vt-enter-left {
+  from {
+    transform: translateX(-40px);
+  }
+}
+
+@keyframes vt-push-right {
+  to {
+    transform: translateX(24px);
   }
 }
 
@@ -1375,5 +1511,11 @@ ul {
     animation-duration: 0.01ms !important;
     animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

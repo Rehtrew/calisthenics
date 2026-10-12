@@ -146,9 +146,9 @@ export function Sheet({ title, text, children }: { title: string; text?: string;
   )
 }
 
-export function Stat({ value, label, unit }: { value: ReactNode; label: string; unit?: string }) {
+export function Stat({ value, label, unit, index = 0 }: { value: ReactNode; label: string; unit?: string; index?: number }) {
   return (
-    <div className="stat">
+    <div className="stat stagger" style={{ '--i': index } as CSSProperties}>
       <span className="stat-num">
         {value}
         {unit && <small>{unit}</small>}
