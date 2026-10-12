@@ -187,7 +187,7 @@ ul {
 }
 
 .hero {
-  margin: 24px 0 48px;
+  margin: 24px 0 56px;
 }
 
 .display {
@@ -417,7 +417,7 @@ ul {
   --left: calc(var(--col, 0) * (var(--cell-w) + var(--gap)));
   --top: calc(var(--row, 0) * (var(--cell-h) + var(--gap)));
   position: relative;
-  margin: 32px 0 28px;
+  margin: 96px 0 28px;
 }
 
 .chips-layer {
@@ -438,11 +438,12 @@ ul {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
-  gap: 4px;
-  min-height: 84px;
-  padding: 16px 16px 14px;
-  border-radius: 18px;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 116px;
+  aspect-ratio: 1 / 1.15;
+  padding: 18px 16px 16px;
+  border-radius: 20px;
   background: var(--surface);
   min-width: 0;
   text-align: left;
@@ -497,7 +498,7 @@ ul {
 .stat {
   background: var(--surface);
   border-radius: var(--radius);
-  padding: 18px 18px 16px;
+  padding: 22px 18px 20px;
   min-width: 0;
 }
 
@@ -528,7 +529,7 @@ ul {
   display: block;
   color: var(--muted);
   font-size: 14px;
-  margin-top: 8px;
+  margin-top: 14px;
 }
 
 .cal-head {
@@ -1530,6 +1531,15 @@ ul {
 
   .hero .btn {
     max-width: 420px;
+  }
+
+  .day-chips {
+    margin-top: 48px;
+  }
+
+  .chip {
+    aspect-ratio: auto;
+    min-height: 104px;
   }
 
   .compare {
