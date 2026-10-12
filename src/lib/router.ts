@@ -12,6 +12,7 @@ export type Route =
   | { name: 'session'; sessionId: string }
   | { name: 'history' }
   | { name: 'settings' }
+  | { name: 'weight' }
 
 type Direction = 'forward' | 'back'
 

@@ -98,10 +98,17 @@ export function Settings() {
         </div>
       </section>
 
-      <button className="row" onClick={() => navigate({ name: 'program' })} style={{ marginBottom: 28 }}>
+      <button className="row" onClick={() => navigate({ name: 'program' })}>
         <span className="row-main">
           <span className="row-title">Se hele programmet</span>
           <span className="row-sub">Alle 16 levels med dage og øvelser</span>
+        </span>
+        <span className="row-value muted">→</span>
+      </button>
+      <button className="row" onClick={() => navigate({ name: 'weight' })} style={{ marginBottom: 28 }}>
+        <span className="row-main">
+          <span className="row-title">Vægtkurve</span>
+          <span className="row-sub">Dine loggede vægte over tid</span>
         </span>
         <span className="row-value muted">→</span>
       </button>

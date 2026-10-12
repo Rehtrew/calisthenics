@@ -95,7 +95,7 @@ export function Home() {
           </p>
         )}
         {latestWeight && (
-          <button className="link inline muted last-trained" onClick={() => navigate({ name: 'session', sessionId: latestWeight.sessionId })}>
+          <button className="link inline muted last-trained" onClick={() => navigate({ name: 'weight' })}>
             Vægt: <strong>{fmtKg(latestWeight.kg)} kg</strong>
             {weightDelta != null && (
               <span className={weightDelta < 0 ? 'positive' : ''}>
@@ -104,7 +104,7 @@ export function Home() {
                 {fmtKg(weightDelta)} kg siden sidst
               </span>
             )}
-            {' '}· {relativeDay(latestWeight.at)}
+            {' '}· {relativeDay(latestWeight.at)} →
           </button>
         )}
       </section>

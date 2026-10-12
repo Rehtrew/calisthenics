@@ -10,6 +10,7 @@ import { History } from './views/History'
 import { Settings } from './views/Settings'
 import { DayPreview } from './views/DayPreview'
 import { ProgramOverview } from './views/ProgramOverview'
+import { WeightView } from './views/WeightView'
 
 export default function App() {
   const route = useRoute()
@@ -42,6 +43,8 @@ function screen(route: ReturnType<typeof useRoute>) {
       return <History />
     case 'settings':
       return <Settings />
+    case 'weight':
+      return <WeightView />
     default:
       return <Home />
   }
