@@ -26,10 +26,10 @@ export function Home() {
   const sync = useSyncStatus()
   const syncLine =
     sync.state === 'off'
-      ? 'Online backup er ikke slået til'
+      ? 'Synkronisering er ikke slået til'
       : sync.state === 'idle' && sync.lastSyncedAt
-        ? `Online backup synkroniseret kl. ${fmtTime(sync.lastSyncedAt)}`
-        : `Online backup: ${sync.message.toLowerCase()}`
+        ? `Synkroniseret kl. ${fmtTime(sync.lastSyncedAt)}`
+        : `Synkronisering: ${sync.message.toLowerCase()}`
 
   return (
     <div className="page">

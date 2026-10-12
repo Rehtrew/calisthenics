@@ -6,7 +6,7 @@ Digital udgave af Caliathletics-programmet (Beginner og Intermediate, level 1 ti
 - Under træningen: aktuel øvelse, sæt-tæller, mål, næste øvelse, forløbet tid og pausetimer med lyd og vibration.
 - Log om du nåede alle reps eller færre. Afbryd når som helst.
 - Opsummering efter hver træning og et dashboard med historik og progression.
-- Data gemmes i browseren og, når online backup er slået til, også på serveren, så telefon og computer deler historik.
+- Data gemmes i browseren og, når synkronisering er slået til, også på serveren, så telefon og computer deler historik.
 
 ## Kør lokalt
 
@@ -28,7 +28,7 @@ npm test
 
 Importér repoet i Vercel. Det er et Vite-projekt med en serverless-funktion i `api/`, så Vercel finder selv build og output.
 
-## Online backup (sync mellem enheder)
+## Synkronisering mellem enheder
 
 Appen gemmer hele sin tilstand som ét JSON-dokument via `api/state.ts`. Det kræver en Redis-database og en hemmelig kode:
 
@@ -38,7 +38,7 @@ Appen gemmer hele sin tilstand som ét JSON-dokument via `api/state.ts`. Det kr�
 2. I Vercel: **Settings → Environment Variables → Add**: Key `APP_SECRET`, Value = en kode, du selv vælger (mindst 6 tegn),
    alle environments markeret. Gem.
 3. Redeploy projektet (Deployments → de tre prikker på seneste deployment → Redeploy), så de nye variabler er med.
-4. I appen: **Indstillinger → Online backup**, skriv den samme kode og tryk Gem. Gør det samme på de andre enheder.
+4. I appen: **Indstillinger → Synkronisering**, skriv den samme kode og tryk Gem. Gør det samme på de andre enheder.
 
 Synkronisering sker automatisk efter hver ændring, når appen åbnes, og når den får net igen. Træninger flettes på tværs
 af enheder; for indstillinger og en igangværende træning vinder den enhed, der sidst ændrede noget.

@@ -96,10 +96,10 @@ export function Settings() {
       </section>
 
       <section className="section">
-        <p className="eyebrow">Online backup</p>
+        <p className="eyebrow">Synkronisering</p>
         <p className="muted small" style={{ margin: '6px 0 16px' }}>
-          Gem dine data på serveren, så de følger med mellem telefon og computer. Skriv den sync-kode, du har sat som APP_SECRET på
-          Vercel. Appen virker stadig uden net og synkroniserer, når den er online igen.
+          Hold telefon og computer i sync via serveren. Skriv den sync-kode, du har sat som APP_SECRET på Vercel. Appen virker
+          stadig uden net og synkroniserer, når den er online igen.
         </p>
         <form
           className="secret-form"
@@ -136,7 +136,7 @@ export function Settings() {
                 setSecretInput('')
               }}
             >
-              Slå online backup fra på denne enhed
+              Slå synkronisering fra på denne enhed
             </Button>
           </div>
         )}
@@ -145,7 +145,7 @@ export function Settings() {
       <section className="section">
         <p className="eyebrow">Data</p>
         <p className="muted small" style={{ margin: '6px 0 16px' }}>
-          Alt gemmes lokalt i denne browser og, hvis online backup er slået til, også på serveren. Tag en backup-fil, hvis du vil
+          Alt gemmes lokalt i denne browser og, når synkronisering er slået til, også på serveren. Eksportér en fil, hvis du vil
           have en kopi selv.
         </p>
         <div className="screen-actions">
