@@ -34,7 +34,7 @@ export function Workout() {
           ? { name: nextEx.name, detail: `${nextEx.sets} × ${nextEx.reps.toLowerCase()}` }
           : { name: 'Sidste sæt', detail: 'så er du færdig' }
 
-  const previous = sessionsForDay(s.sessions, a.programId, a.levelIndex, a.dayId).at(-1)
+  const previous = sessionsForDay(s.sessions, a.levelIndex, a.dayId).at(-1)
   const lastTime = lastSetResult(previous, ex.name, a.setIndex)
 
   const done = (sessionId: string | null) => {

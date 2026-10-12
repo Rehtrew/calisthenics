@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from 'react'
 import { useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
-import { getLevel, getProgram } from '../data/programs'
+import { getLevel, LEVEL_COUNT } from '../data/programs'
 import { byEnded, countThisMonth, estimateMinutes, recentAverage, sessionsForDay, suggestNextDay, weightLog } from '../lib/stats'
 import { cap, fmtKg, fmtTime, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
@@ -15,10 +15,9 @@ let rememberedDayId: string | null = null
 
 export function Home() {
   const s = useAppState()
-  const { programId, levelIndex, restSeconds, skipLegs } = s.settings
-  const program = getProgram(programId)
-  const level = getLevel(programId, levelIndex)
-  const next = suggestNextDay(level, s.sessions, programId, levelIndex)
+  const { levelIndex, restSeconds, skipLegs } = s.settings
+  const level = getLevel(levelIndex)
+  const next = suggestNextDay(level, s.sessions, levelIndex)
   const [selectedId, setSelectedIdState] = useState<string | null>(rememberedDayId)
   const setSelectedId = (id: string) => {
     rememberedDayId = id
@@ -28,7 +27,7 @@ export function Home() {
   const isNext = selected.id === next.id
   const exercises = selected.exercises.filter((e) => !(skipLegs && isLegs(e.name)))
   const minutes = estimateMinutes(exercises, restSeconds)
-  const atLevel = s.sessions.filter((x) => x.programId === programId && x.levelIndex === levelIndex && x.status === 'completed').length
+  const atLevel = s.sessions.filter((x) => x.levelIndex === levelIndex && x.status === 'completed').length
   const avg = recentAverage(s.sessions)
   const sorted = [...s.sessions].sort(byEnded)
   const last = sorted.at(-1)
@@ -56,7 +55,7 @@ export function Home() {
       <TopBar
         left={
           <button className="link" onClick={() => navigate({ name: 'program' })}>
-            {program.name} · {level.name} →
+            {level.name} af {LEVEL_COUNT} →
           </button>
         }
         right={
@@ -80,14 +79,14 @@ export function Home() {
         </h1>
         <p className="muted">
           {exercises.length} øvelser · ca. {minutes} min{selected.focus ? ` · ${selected.focus}` : ''} ·{' '}
-          <button className="link inline" onClick={() => navigate({ name: 'day', programId, levelIndex, dayId: selected.id })}>
+          <button className="link inline" onClick={() => navigate({ name: 'day', levelIndex, dayId: selected.id })}>
             Se øvelser →
           </button>
         </p>
         {last && (
           <p className="muted last-trained">
             Senest trænet: <strong>{last.dayLabel}</strong>
-            {last.programId !== programId || last.levelIndex !== levelIndex ? ` (Level ${last.levelIndex + 1})` : ''} ·{' '}
+            {last.levelIndex !== levelIndex ? ` (Level ${last.levelIndex + 1})` : ''} ·{' '}
             {relativeDay(last.endedAt)}
             {last.status === 'aborted' ? ' · afbrudt' : ''}
           </p>
@@ -113,7 +112,7 @@ export function Home() {
         >
           <span className="chips-thumb" aria-hidden="true" />
           {level.days.map((d, i) => {
-            const lastForDay = sessionsForDay(s.sessions, programId, levelIndex, d.id).at(-1)
+            const lastForDay = sessionsForDay(s.sessions, levelIndex, d.id).at(-1)
             return (
               <button
                 key={d.id}

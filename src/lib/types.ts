@@ -1,5 +1,3 @@
-export type ProgramId = 'beginner' | 'intermediate'
-
 export interface Exercise {
   name: string
   /** raw reps string from the program, e.g. "10", "15s", "6 each side", "Max", "10,10,15", "5+10" */
@@ -19,12 +17,6 @@ export interface Level {
   index: number
   name: string
   days: ProgramDay[]
-}
-
-export interface Program {
-  id: ProgramId
-  name: string
-  levels: Level[]
 }
 
 export type Unit = 'reps' | 's' | 'min'
@@ -58,7 +50,7 @@ export type SessionStatus = 'completed' | 'aborted'
 
 export interface Session {
   id: string
-  programId: ProgramId
+  /** 0-based index into the 16 levels */
   levelIndex: number
   dayId: string
   dayLabel: string
@@ -73,7 +65,6 @@ export interface Session {
 }
 
 export interface ActiveWorkout {
-  programId: ProgramId
   levelIndex: number
   dayId: string
   dayLabel: string
@@ -88,7 +79,6 @@ export interface ActiveWorkout {
 }
 
 export interface Settings {
-  programId: ProgramId
   levelIndex: number
   restSeconds: number
   skipLegs: boolean

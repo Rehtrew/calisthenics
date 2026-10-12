@@ -6,7 +6,6 @@ import type { AppState, Session } from './types'
 
 const session = (id: string, endedAt: number): Session => ({
   id,
-  programId: 'beginner',
   levelIndex: 0,
   dayId: 'd1',
   dayLabel: 'Dag 1',
@@ -20,7 +19,7 @@ const session = (id: string, endedAt: number): Session => ({
 
 const base = (over: Partial<AppState>): AppState => ({
   version: 1,
-  settings: { programId: 'beginner', levelIndex: 0, restSeconds: 120, skipLegs: false, theme: 'dark', weightKg: 106 },
+  settings: { levelIndex: 0, restSeconds: 120, skipLegs: false, theme: 'dark', weightKg: 106 },
   sessions: [],
   active: null,
   updatedAt: 0,
@@ -36,10 +35,10 @@ describe('mergeStates', () => {
   })
 
   it('lets the newer side win settings and active workout', () => {
-    const local = base({ updatedAt: 10, settings: { programId: 'beginner', levelIndex: 2, restSeconds: 90, skipLegs: true, theme: 'dark', weightKg: 106 } })
-    const remote = base({ updatedAt: 20, settings: { programId: 'intermediate', levelIndex: 0, restSeconds: 120, skipLegs: false, theme: 'light', weightKg: 106 } })
-    expect(mergeStates(local, remote).settings.programId).toBe('intermediate')
-    expect(mergeStates(remote, local).settings.programId).toBe('intermediate')
+    const local = base({ updatedAt: 10, settings: { levelIndex: 2, restSeconds: 90, skipLegs: true, theme: 'dark', weightKg: 106 } })
+    const remote = base({ updatedAt: 20, settings: { levelIndex: 0, restSeconds: 120, skipLegs: false, theme: 'light', weightKg: 106 } })
+    expect(mergeStates(local, remote).settings.theme).toBe('light')
+    expect(mergeStates(remote, local).settings.theme).toBe('light')
     expect(mergeStates(local, remote).updatedAt).toBe(20)
   })
 

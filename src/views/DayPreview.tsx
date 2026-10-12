@@ -1,32 +1,30 @@
 import { useEffect, type CSSProperties } from 'react'
 import { updateSettings, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
-import { getDay, getLevel, getProgram } from '../data/programs'
+import { getDay, getLevel } from '../data/programs'
 import { estimateMinutes, sessionsForDay } from '../lib/stats'
 import { relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
-import type { ProgramId } from '../lib/types'
 import { BackButton, Button, TopBar } from '../components/ui'
 
-export function DayPreview({ programId, levelIndex, dayId }: { programId: ProgramId; levelIndex: number; dayId: string }) {
+export function DayPreview({ levelIndex, dayId }: { levelIndex: number; dayId: string }) {
   const s = useAppState()
-  const program = getProgram(programId)
-  const level = getLevel(programId, levelIndex)
-  const day = getDay(programId, levelIndex, dayId)
+  const level = getLevel(levelIndex)
+  const day = getDay(levelIndex, dayId)
 
   useEffect(() => {
     if (!day) navigate({ name: 'home' }, { replace: true })
   }, [day])
   if (!day) return null
 
-  const isCurrent = s.settings.programId === programId && s.settings.levelIndex === levelIndex
-  const last = sessionsForDay(s.sessions, programId, levelIndex, dayId).at(-1)
+  const isCurrent = s.settings.levelIndex === levelIndex
+  const last = sessionsForDay(s.sessions, levelIndex, dayId).at(-1)
   const totalSets = day.exercises.reduce((n, e) => n + e.sets, 0)
   const minutes = estimateMinutes(day.exercises, s.settings.restSeconds)
   const legs = day.exercises.filter((e) => isLegs(e.name)).length
 
   const start = () => {
-    if (!isCurrent) updateSettings({ programId, levelIndex })
+    if (!isCurrent) updateSettings({ levelIndex })
     navigate({ name: 'setup', dayId })
   }
 
@@ -35,9 +33,7 @@ export function DayPreview({ programId, levelIndex, dayId }: { programId: Progra
       <TopBar
         left={<BackButton />}
         right={
-          <span className="eyebrow">
-            {program.name} · {level.name}
-          </span>
+          <span className="eyebrow">{level.name}</span>
         }
       />
 

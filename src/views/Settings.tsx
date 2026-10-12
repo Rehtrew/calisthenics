@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
 import { replaceState, resetAll, updateSettings, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
-import { programs } from '../data/programs'
+import { getLevel } from '../data/programs'
+import { LevelGrid } from '../components/LevelGrid'
 import { dayKey, fmtTime } from '../lib/format'
 import { getSyncSecret, setSyncSecret, syncNow, useSyncStatus } from '../lib/sync'
-import type { ProgramId } from '../lib/types'
 import { BackButton, Button, Segmented, Sheet, Stepper, TopBar } from '../components/ui'
 
 export function Settings() {
@@ -13,7 +13,7 @@ export function Settings() {
   const [pending, setPending] = useState<unknown>(null)
   const [message, setMessage] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
-  const program = programs.find((p) => p.id === s.settings.programId) ?? programs[0]
+  const level = getLevel(s.settings.levelIndex)
   const sync = useSyncStatus()
   const [secretInput, setSecretInput] = useState(getSyncSecret())
   const syncOn = getSyncSecret() !== ''
@@ -46,33 +46,21 @@ export function Settings() {
     <div className="page">
       <TopBar left={<BackButton />} />
       <section className="hero">
-        <p className="eyebrow">Indstillinger</p>
-        <h1 className="title">Program og level</h1>
+        <p className="eyebrow">Cali</p>
+        <h1 className="title">Indstillinger</h1>
+      </section>
+
+      <section className="section">
+        <div className="row-head">
+          <p className="eyebrow">Level</p>
+          <span className="eyebrow">
+            {level.name} · {level.days.length} træningsdage
+          </span>
+        </div>
+        <LevelGrid value={s.settings.levelIndex} onChange={(levelIndex) => updateSettings({ levelIndex })} />
       </section>
 
       <section className="card">
-        <div className="field">
-          <div>
-            <p className="field-label">Program</p>
-          </div>
-          <Segmented
-            value={s.settings.programId}
-            options={programs.map((p) => ({ value: p.id as ProgramId, label: p.name }))}
-            onChange={(programId) => updateSettings({ programId, levelIndex: 0 })}
-          />
-        </div>
-        <div className="field">
-          <div>
-            <p className="field-label">Level</p>
-            <p className="field-hint">{program.levels[s.settings.levelIndex]?.days.length ?? 0} træningsdage</p>
-          </div>
-          <Stepper
-            value={s.settings.levelIndex + 1}
-            min={1}
-            max={program.levels.length}
-            onChange={(v) => updateSettings({ levelIndex: v - 1 })}
-          />
-        </div>
         <div className="field">
           <div>
             <p className="field-label">Vægt</p>
@@ -98,7 +86,7 @@ export function Settings() {
       <button className="row" onClick={() => navigate({ name: 'program' })} style={{ marginBottom: 28 }}>
         <span className="row-main">
           <span className="row-title">Se hele programmet</span>
-          <span className="row-sub">Alle levels og dage i Beginner og Intermediate</span>
+          <span className="row-sub">Alle 16 levels med dage og øvelser</span>
         </span>
         <span className="row-value muted">→</span>
       </button>
@@ -172,7 +160,7 @@ export function Settings() {
       </section>
 
       <p className="muted small">
-        {s.sessions.length} træninger gemt · Programmet er Caliathletics Beginner og Intermediate
+        {s.sessions.length} træninger gemt · Programmet er Caliathletics, 16 levels
       </p>
 
       {confirm === 'reset' && (

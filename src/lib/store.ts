@@ -1,11 +1,10 @@
 import { useSyncExternalStore } from 'react'
-import type { ActiveWorkout, AppState, Exercise, ProgramDay, ProgramId, Session, SessionStatus, SetLog, Settings } from './types'
+import type { ActiveWorkout, AppState, Exercise, ProgramDay, Session, SessionStatus, SetLog, Settings } from './types'
 import { parseReps } from './reps'
 
 const KEY = 'calisthenics:v1'
 
 const defaultSettings: Settings = {
-  programId: 'beginner',
   levelIndex: 0,
   restSeconds: 120,
   skipLegs: false,
@@ -15,13 +14,20 @@ const defaultSettings: Settings = {
 
 const defaultState: AppState = { version: 1, settings: defaultSettings, sessions: [], active: null, updatedAt: 0, deleted: [] }
 
+/** Older data had programId beginner/intermediate; fold it into the single 16-level ladder. */
+function migrateLevel<T extends { levelIndex: number }>(item: T & { programId?: string }): T {
+  const { programId, ...rest } = item
+  const levelIndex = programId === 'intermediate' ? rest.levelIndex + 8 : rest.levelIndex
+  return { ...rest, levelIndex } as T
+}
+
 export function normalize(input: unknown): AppState {
   const p = (input && typeof input === 'object' ? input : {}) as Partial<AppState>
   return {
     version: 1,
-    settings: { ...defaultSettings, ...(p.settings ?? {}) },
-    sessions: Array.isArray(p.sessions) ? p.sessions : [],
-    active: p.active ?? null,
+    settings: migrateLevel({ ...defaultSettings, ...(p.settings ?? {}) }),
+    sessions: Array.isArray(p.sessions) ? p.sessions.map((s) => migrateLevel(s)) : [],
+    active: p.active ? migrateLevel(p.active) : null,
     updatedAt: typeof p.updatedAt === 'number' ? p.updatedAt : 0,
     deleted: Array.isArray(p.deleted) ? p.deleted.filter((x): x is string => typeof x === 'string') : [],
   }
@@ -90,7 +96,6 @@ const makeId = () => Date.now().toString(36) + Math.random().toString(36).slice(
 function closeActive(a: ActiveWorkout, status: SessionStatus): Session {
   return {
     id: makeId(),
-    programId: a.programId,
     levelIndex: a.levelIndex,
     dayId: a.dayId,
     dayLabel: a.dayLabel,
@@ -104,7 +109,6 @@ function closeActive(a: ActiveWorkout, status: SessionStatus): Session {
 }
 
 export function startWorkout(opts: {
-  programId: ProgramId
   levelIndex: number
   day: ProgramDay
   exercises: Exercise[]
@@ -114,7 +118,6 @@ export function startWorkout(opts: {
   let sessions = state.sessions
   if (state.active) sessions = [...sessions, closeActive(state.active, 'aborted')]
   const active: ActiveWorkout = {
-    programId: opts.programId,
     levelIndex: opts.levelIndex,
     dayId: opts.day.id,
     dayLabel: opts.day.label,

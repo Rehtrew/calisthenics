@@ -4,7 +4,6 @@ import type { Session } from './types'
 
 const mk = (id: string, start: number, reps: number): Session => ({
   id,
-  programId: 'beginner',
   levelIndex: 0,
   dayId: 'd1',
   dayLabel: 'Dag 1',

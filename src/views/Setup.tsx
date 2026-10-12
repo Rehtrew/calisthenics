@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { startWorkout, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
-import { getDay, getLevel, getProgram } from '../data/programs'
+import { getDay, getLevel } from '../data/programs'
 import { estimateMinutes, sessionsForDay } from '../lib/stats'
 import { fmtClock, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
@@ -12,10 +12,9 @@ const DEFAULT_REST_SECONDS = 120
 
 export function Setup({ dayId }: { dayId: string }) {
   const s = useAppState()
-  const { programId, levelIndex } = s.settings
-  const program = getProgram(programId)
-  const level = getLevel(programId, levelIndex)
-  const day = getDay(programId, levelIndex, dayId)
+  const { levelIndex } = s.settings
+  const level = getLevel(levelIndex)
+  const day = getDay(levelIndex, dayId)
 
   const [order, setOrder] = useState<number[]>(() => (day ? day.exercises.map((_, i) => i) : []))
   const [skipLegs, setSkipLegs] = useState(s.settings.skipLegs)
@@ -32,7 +31,7 @@ export function Setup({ dayId }: { dayId: string }) {
   const totalSets = included.reduce((n, e) => n + e.sets, 0)
   const minutes = estimateMinutes(included, rest)
   const changed = order.some((v, i) => v !== i)
-  const last = sessionsForDay(s.sessions, programId, levelIndex, dayId).at(-1)
+  const last = sessionsForDay(s.sessions, levelIndex, dayId).at(-1)
 
   const move = (pos: number, dir: -1 | 1) => {
     const j = pos + dir
@@ -43,17 +42,17 @@ export function Setup({ dayId }: { dayId: string }) {
   }
 
   const start = () => {
-    startWorkout({ programId, levelIndex, day, exercises: included, restSeconds: rest, skipLegs })
+    startWorkout({ levelIndex, day, exercises: included, restSeconds: rest, skipLegs })
     navigate({ name: 'workout' }, { replace: true })
   }
 
   return (
     <div className="page">
-      <TopBar left={<BackButton />} right={<span className="eyebrow">{program.name}</span>} />
+      <TopBar left={<BackButton />} right={<span className="eyebrow">{level.name}</span>} />
 
       <section className="hero">
         <p className="eyebrow">
-          {level.name}
+          Opsætning
           {day.focus ? ` · ${day.focus}` : ''}
         </p>
         <h1 className="display day-title">{day.label}</h1>

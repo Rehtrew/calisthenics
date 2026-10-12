@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { isLegs, parseReps } from './reps'
 import { estimateMinutes, sessionScore, suggestNextDay } from './stats'
-import { beginner } from '../data/programs'
+import { levels } from '../data/programs'
 import type { Session } from './types'
 
 describe('parseReps', () => {
@@ -49,7 +49,6 @@ describe('isLegs', () => {
 
 const session = (over: Partial<Session>): Session => ({
   id: 'x',
-  programId: 'beginner',
   levelIndex: 0,
   dayId: 'd1',
   dayLabel: 'dag 1',
@@ -83,21 +82,21 @@ describe('sessionScore', () => {
 })
 
 describe('suggestNextDay', () => {
-  const level = beginner.levels[0]
+  const level = levels[0]
   it('starts at day 1', () => {
-    expect(suggestNextDay(level, [], 'beginner', 0).id).toBe('d1')
+    expect(suggestNextDay(level, [], 0).id).toBe('d1')
   })
   it('cycles after a completed day', () => {
-    expect(suggestNextDay(level, [session({ dayId: 'd5' })], 'beginner', 0).id).toBe('d1')
-    expect(suggestNextDay(level, [session({ dayId: 'd1' })], 'beginner', 0).id).toBe('d3')
+    expect(suggestNextDay(level, [session({ dayId: 'd5' })], 0).id).toBe('d1')
+    expect(suggestNextDay(level, [session({ dayId: 'd1' })], 0).id).toBe('d3')
   })
   it('repeats an aborted day', () => {
-    expect(suggestNextDay(level, [session({ dayId: 'd3', status: 'aborted' })], 'beginner', 0).id).toBe('d3')
+    expect(suggestNextDay(level, [session({ dayId: 'd3', status: 'aborted' })], 0).id).toBe('d3')
   })
 })
 
 describe('estimateMinutes', () => {
   it('rounds to five minutes', () => {
-    expect(estimateMinutes(beginner.levels[0].days[0].exercises, 120) % 5).toBe(0)
+    expect(estimateMinutes(levels[0].days[0].exercises, 120) % 5).toBe(0)
   })
 })

@@ -24,7 +24,7 @@ export default function App() {
     case 'setup':
       return <Setup key={route.dayId} dayId={route.dayId} />
     case 'day':
-      return <DayPreview key={`${route.programId}-${route.levelIndex}-${route.dayId}`} programId={route.programId} levelIndex={route.levelIndex} dayId={route.dayId} />
+      return <DayPreview key={`${route.levelIndex}-${route.dayId}`} levelIndex={route.levelIndex} dayId={route.dayId} />
     case 'program':
       return <ProgramOverview />
     case 'workout':

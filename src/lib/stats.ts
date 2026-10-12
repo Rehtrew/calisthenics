@@ -1,4 +1,4 @@
-import type { Exercise, ExerciseLog, Level, ProgramDay, ProgramId, Session, SetLog } from './types'
+import type { Exercise, ExerciseLog, Level, ProgramDay, Session, SetLog } from './types'
 import { parseReps } from './reps'
 
 export function setRatio(log: SetLog): number {
@@ -41,12 +41,12 @@ export function sessionScore(session: Pick<Session, 'exercises'>): Score {
 
 export const byEnded = (a: Session, b: Session) => a.endedAt - b.endedAt
 
-export function sessionsForDay(sessions: Session[], programId: ProgramId, levelIndex: number, dayId: string): Session[] {
-  return sessions.filter((s) => s.programId === programId && s.levelIndex === levelIndex && s.dayId === dayId).sort(byEnded)
+export function sessionsForDay(sessions: Session[], levelIndex: number, dayId: string): Session[] {
+  return sessions.filter((s) => s.levelIndex === levelIndex && s.dayId === dayId).sort(byEnded)
 }
 
 export function previousSession(sessions: Session[], ref: Session): Session | undefined {
-  return sessionsForDay(sessions, ref.programId, ref.levelIndex, ref.dayId)
+  return sessionsForDay(sessions, ref.levelIndex, ref.dayId)
     .filter((s) => s.id !== ref.id && s.endedAt <= ref.startedAt)
     .at(-1)
 }
@@ -72,8 +72,8 @@ export function recentAverage(sessions: Session[], n = 5): number | null {
   return Math.round(last.reduce((sum, s) => sum + sessionScore(s).pct, 0) / last.length)
 }
 
-export function suggestNextDay(level: Level, sessions: Session[], programId: ProgramId, levelIndex: number): ProgramDay {
-  const atLevel = sessions.filter((s) => s.programId === programId && s.levelIndex === levelIndex).sort(byEnded)
+export function suggestNextDay(level: Level, sessions: Session[], levelIndex: number): ProgramDay {
+  const atLevel = sessions.filter((s) => s.levelIndex === levelIndex).sort(byEnded)
   const last = atLevel.at(-1)
   if (!last) return level.days[0]
   const idx = Math.max(0, level.days.findIndex((d) => d.id === last.dayId))

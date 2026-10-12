@@ -1,4 +1,4 @@
-import type { Exercise, Level, Program, ProgramDay, ProgramId } from '../lib/types'
+import type { Exercise, Level, ProgramDay } from '../lib/types'
 
 type E = [name: string, reps: string, sets: number] | [name: string, reps: string, sets: number, kind: 'skills']
 
@@ -17,10 +17,7 @@ const level = (index: number, days: ProgramDay[]): Level => ({ index, name: `Lev
 const STATIC: E = ['Static skills progressions', '10 min', 3, 'skills']
 const DYNAMIC: E = ['Dynamic skills progressions', '10 min', 3, 'skills']
 
-export const beginner: Program = {
-  id: 'beginner',
-  name: 'Beginner',
-  levels: [
+const beginner: Level[] = [
     level(1, [
       day(1, [
         ['Push ups on knees', '10', 3],
@@ -365,13 +362,9 @@ export const beginner: Program = {
         'Lower body',
       ),
     ]),
-  ],
-}
+]
 
-export const intermediate: Program = {
-  id: 'intermediate',
-  name: 'Intermediate',
-  levels: [
+const intermediate: Level[] = [
     level(1, [
       day(1, [
         STATIC,
@@ -689,20 +682,17 @@ export const intermediate: Program = {
         'Shoulders',
       ),
     ]),
-  ],
+]
+
+/** The whole program as one ladder: the old Beginner 1–8 are levels 1–8, Intermediate 1–8 are levels 9–16. */
+export const levels: Level[] = [...beginner, ...intermediate.map((l, i) => ({ ...l, index: 9 + i, name: `Level ${9 + i}` }))]
+
+export const LEVEL_COUNT = levels.length
+
+export function getLevel(levelIndex: number): Level {
+  return levels[Math.min(Math.max(0, levelIndex), levels.length - 1)]
 }
 
-export const programs: Program[] = [beginner, intermediate]
-
-export function getProgram(id: ProgramId): Program {
-  return programs.find((p) => p.id === id) ?? beginner
-}
-
-export function getLevel(programId: ProgramId, levelIndex: number): Level {
-  const p = getProgram(programId)
-  return p.levels[Math.min(Math.max(0, levelIndex), p.levels.length - 1)]
-}
-
-export function getDay(programId: ProgramId, levelIndex: number, dayId: string): ProgramDay | undefined {
-  return getLevel(programId, levelIndex).days.find((d) => d.id === dayId)
+export function getDay(levelIndex: number, dayId: string): ProgramDay | undefined {
+  return getLevel(levelIndex).days.find((d) => d.id === dayId)
 }

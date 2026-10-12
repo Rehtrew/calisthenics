@@ -1,12 +1,11 @@
 import { useSyncExternalStore } from 'react'
 import { flushSync } from 'react-dom'
 import { getState } from './store'
-import type { ProgramId } from './types'
 
 export type Route =
   | { name: 'home' }
   | { name: 'setup'; dayId: string }
-  | { name: 'day'; programId: ProgramId; levelIndex: number; dayId: string }
+  | { name: 'day'; levelIndex: number; dayId: string }
   | { name: 'program' }
   | { name: 'workout' }
   | { name: 'summary'; sessionId: string }

@@ -1,42 +1,43 @@
-import { useState, type CSSProperties } from 'react'
-import { useAppState } from '../lib/store'
+import type { CSSProperties } from 'react'
+import { updateSettings, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
-import { getProgram, programs } from '../data/programs'
-import type { ProgramId } from '../lib/types'
-import { BackButton, Segmented, TopBar } from '../components/ui'
+import { levels } from '../data/programs'
+import { BackButton, TopBar } from '../components/ui'
+import { LevelGrid } from '../components/LevelGrid'
 
 export function ProgramOverview() {
   const s = useAppState()
-  const [programId, setProgramId] = useState<ProgramId>(s.settings.programId)
-  const program = getProgram(programId)
 
   return (
     <div className="page">
       <TopBar left={<BackButton />} />
       <section className="hero">
         <p className="eyebrow">Programmet</p>
-        <h1 className="title">Alle levels og dage</h1>
+        <h1 className="title">Alle {levels.length} levels</h1>
         <p className="muted" style={{ marginTop: 8 }}>
-          Tryk på en dag for at se øvelserne. Du kan starte en dag fra et andet level derfra.
+          Vælg dit level her, eller tryk på en dag for at se øvelserne. Du kan også starte en dag fra et andet level.
         </p>
         <div style={{ marginTop: 20 }}>
-          <Segmented value={programId} options={programs.map((p) => ({ value: p.id as ProgramId, label: p.name }))} onChange={setProgramId} />
+          <LevelGrid value={s.settings.levelIndex} onChange={(levelIndex) => updateSettings({ levelIndex })} />
         </div>
       </section>
 
-      {program.levels.map((level, li) => {
-        const current = programId === s.settings.programId && level.index - 1 === s.settings.levelIndex
+      {levels.map((level, li) => {
+        const current = li === s.settings.levelIndex
+        const done = s.sessions.filter((x) => x.levelIndex === li && x.status === 'completed').length
         return (
-          <section key={`${programId}-${level.index}`} className="section stagger" style={{ '--i': li } as CSSProperties}>
+          <section key={level.index} id={`level-${level.index}`} className="section stagger" style={{ '--i': li } as CSSProperties}>
             <div className="row-head">
-              <p className="eyebrow">
+              <p className={`eyebrow ${current ? 'accent' : ''}`}>
                 {level.name}
                 {current ? ' · Nuværende' : ''}
               </p>
-              <span className="eyebrow">{level.days.length} dage</span>
+              <span className="eyebrow">
+                {level.days.length} dage{done ? ` · ${done} gennemført` : ''}
+              </span>
             </div>
             {level.days.map((d) => (
-              <button key={d.id} className="row" onClick={() => navigate({ name: 'day', programId, levelIndex: level.index - 1, dayId: d.id })}>
+              <button key={d.id} className="row" onClick={() => navigate({ name: 'day', levelIndex: li, dayId: d.id })}>
                 <span className="row-main">
                   <span className="row-title">
                     {d.label}

@@ -6,7 +6,6 @@ const at = (y: number, m: number, d: number, h = 12) => new Date(y, m - 1, d, h)
 
 const session = (ts: number): Session => ({
   id: String(ts),
-  programId: 'beginner',
   levelIndex: 0,
   dayId: 'd1',
   dayLabel: 'Dag 1',

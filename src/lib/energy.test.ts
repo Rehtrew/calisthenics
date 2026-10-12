@@ -4,7 +4,6 @@ import type { Session } from './types'
 
 const session: Session = {
   id: 'abc',
-  programId: 'beginner',
   levelIndex: 0,
   dayId: 'd1',
   dayLabel: 'Dag 1',
