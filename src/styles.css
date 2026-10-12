@@ -291,7 +291,8 @@ ul {
   text-align: center;
   font-size: 20px;
   font-weight: 500;
-  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  padding: 0 6px;
 }
 
 .stepper .icon-btn {
@@ -696,7 +697,6 @@ ul {
   font-size: 32px;
   font-weight: 500;
   line-height: 1.1;
-  font-variant-numeric: tabular-nums;
   margin-top: 2px;
 }
 
@@ -750,7 +750,6 @@ ul {
   font-size: clamp(96px, 34vw, 176px);
   font-weight: 500;
   line-height: 0.9;
-  font-variant-numeric: tabular-nums;
 }
 
 .rest-clock {
@@ -806,7 +805,6 @@ ul {
   font-size: clamp(80px, 26vw, 128px);
   font-weight: 500;
   line-height: 1;
-  font-variant-numeric: tabular-nums;
 }
 
 .last-hint {
@@ -1041,7 +1039,6 @@ ul {
   background: var(--surface-2);
   font-size: 15px;
   text-align: center;
-  font-variant-numeric: tabular-nums;
 }
 
 .set-pill.short {
