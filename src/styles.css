@@ -316,35 +316,40 @@ ul {
   color: var(--bg);
 }
 
-.day-chips {
-  display: flex;
-  gap: 8px;
-  margin: 20px -20px 24px;
-  padding: 0 20px;
-  overflow-x: auto;
-  scrollbar-width: none;
+.last-trained {
+  margin-top: 6px;
 }
 
-.day-chips::-webkit-scrollbar {
-  display: none;
+.last-trained strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.day-chips {
+  display: grid;
+  gap: 8px;
+  margin: 20px 0 24px;
 }
 
 .chip {
-  flex: none;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
-  padding: 12px 16px;
+  padding: 12px 14px;
   border-radius: 16px;
   background: var(--surface);
-  min-width: 112px;
+  min-width: 0;
   text-align: left;
 }
 
 .chip small {
   color: var(--muted);
   font-size: 13px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chip.active {
@@ -863,13 +868,6 @@ ul {
 
   .display {
     font-size: 128px;
-  }
-
-  .day-chips {
-    margin-left: 0;
-    margin-right: 0;
-    padding: 0;
-    flex-wrap: wrap;
   }
 
   .hero .btn {

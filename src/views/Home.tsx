@@ -20,7 +20,10 @@ export function Home() {
   const atLevel = s.sessions.filter((x) => x.programId === programId && x.levelIndex === levelIndex && x.status === 'completed').length
   const avg = recentAverage(s.sessions)
   const cells = weeksGrid(s.sessions, WEEKS)
-  const recent = [...s.sessions].sort(byEnded).reverse().slice(0, 4)
+  const sorted = [...s.sessions].sort(byEnded)
+  const last = sorted.at(-1)
+  const recent = sorted.slice(-4).reverse()
+  const cols = level.days.length === 4 ? 2 : Math.min(3, level.days.length)
 
   return (
     <div className="page">
@@ -50,13 +53,21 @@ export function Home() {
         <p className="muted">
           {nextExercises.length} øvelser · ca. {minutes} min{next.focus ? ` · ${next.focus}` : ''}
         </p>
-        <div className="day-chips">
+        {last && (
+          <p className="muted last-trained">
+            Senest trænet: <strong>{last.dayLabel}</strong>
+            {last.programId !== programId || last.levelIndex !== levelIndex ? ` (Level ${last.levelIndex + 1})` : ''} ·{' '}
+            {relativeDay(last.endedAt)}
+            {last.status === 'aborted' ? ' · afbrudt' : ''}
+          </p>
+        )}
+        <div className="day-chips" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
           {level.days.map((d) => {
-            const last = sessionsForDay(s.sessions, programId, levelIndex, d.id).at(-1)
+            const lastForDay = sessionsForDay(s.sessions, programId, levelIndex, d.id).at(-1)
             return (
               <button key={d.id} className={`chip ${d.id === next.id ? 'active' : ''}`} onClick={() => navigate({ name: 'setup', dayId: d.id })}>
                 {d.label}
-                <small>{last ? cap(relativeDay(last.endedAt)) : 'Ikke trænet endnu'}</small>
+                <small>{lastForDay ? cap(relativeDay(lastForDay.endedAt)) : 'Ikke trænet'}</small>
               </button>
             )
           })}

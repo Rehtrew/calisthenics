@@ -38,7 +38,7 @@ export function relativeDay(ts: number, now = Date.now()): string {
   const diff = Math.round((startOfDay(now) - startOfDay(ts)) / 86_400_000)
   if (diff <= 0) return 'i dag'
   if (diff === 1) return 'i går'
-  if (diff < 7) return `for ${diff} dage siden`
+  if (diff < 7) return `${diff} dage siden`
   return fmtDateShort(ts)
 }
 
