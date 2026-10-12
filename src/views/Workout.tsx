@@ -52,10 +52,15 @@ export function Workout() {
 
   return (
     <div className="screen">
-      <header className="topbar">
-        <span className="eyebrow">
-          {a.dayLabel} · Level {a.levelIndex + 1} · {fmtDuration(now - a.startedAt)}
-        </span>
+      <header className="topbar workout-bar">
+        <div>
+          <span className="eyebrow">
+            {a.dayLabel} · Level {a.levelIndex + 1}
+          </span>
+          <div className="elapsed" aria-label="Tid i gang">
+            {fmtDuration(now - a.startedAt)}
+          </div>
+        </div>
         <button className="link" onClick={() => setAbort(true)}>
           Afbryd
         </button>

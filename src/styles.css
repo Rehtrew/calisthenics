@@ -2,6 +2,7 @@
   --bg: #0b0b0b;
   --surface: #161616;
   --surface-2: #232323;
+  --surface-3: #2f2f2f;
   --border: #262626;
   --text: #f4f4f2;
   --muted: #8c8c8c;
@@ -15,6 +16,7 @@
   --bg: #f4f4f2;
   --surface: #ffffff;
   --surface-2: #e8e8e5;
+  --surface-3: #dcdcd8;
   --border: #e1e1de;
   --text: #0b0b0b;
   --muted: #6f6f6f;
@@ -550,6 +552,16 @@ ul {
 
 .screen .topbar {
   margin-bottom: 8px;
+  align-items: flex-start;
+}
+
+.elapsed {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
 }
 
 .screen-main {
@@ -765,4 +777,137 @@ ul {
 
 .delta.down {
   color: var(--muted);
+}
+
+/* pointer devices */
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+
+  .btn-secondary:hover:not(:disabled),
+  .icon-btn:hover:not(:disabled),
+  .big-stepper .icon-btn:hover:not(:disabled),
+  .stepper .icon-btn:hover:not(:disabled) {
+    background: var(--surface-3);
+  }
+
+  .btn-ghost:hover:not(:disabled),
+  .link:hover {
+    color: var(--text);
+  }
+
+  .chip:hover:not(.active) {
+    background: var(--surface-2);
+  }
+
+  .row:hover .row-title,
+  .row:hover .row-value {
+    color: var(--accent);
+  }
+
+  .segmented button:hover:not(.active) {
+    color: var(--text);
+  }
+}
+
+/* desktop: hero on the left, content on the right */
+@media (min-width: 900px) {
+  body {
+    font-size: 18px;
+  }
+
+  .page {
+    max-width: 1080px;
+    padding: 40px 48px 96px;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    column-gap: 72px;
+    align-content: start;
+    align-items: start;
+  }
+
+  .page > .topbar,
+  .page > .banner {
+    grid-column: 1 / -1;
+  }
+
+  .page > .topbar {
+    margin-bottom: 32px;
+  }
+
+  .page > .hero {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 0;
+  }
+
+  .page > .cta-bar {
+    grid-column: 1;
+    grid-row: 3;
+    position: static;
+    padding: 32px 0 0;
+    background: none;
+    pointer-events: auto;
+  }
+
+  .page > .cta-bar > * {
+    max-width: 420px;
+    margin: 0;
+  }
+
+  .page > :not(.topbar):not(.banner):not(.hero):not(.cta-bar) {
+    grid-column: 2;
+  }
+
+  .display {
+    font-size: 128px;
+  }
+
+  .day-chips {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0;
+    flex-wrap: wrap;
+  }
+
+  .hero .btn {
+    max-width: 420px;
+  }
+
+  .compare {
+    margin-top: 0;
+  }
+
+  .screen {
+    max-width: 720px;
+    padding: 40px 48px 48px;
+  }
+
+  .exercise-title {
+    font-size: 56px;
+  }
+
+  .target {
+    font-size: 200px;
+  }
+
+  .rest-clock {
+    font-size: 176px;
+  }
+
+  .big-stepper .value {
+    font-size: 150px;
+  }
+
+  .sheet-backdrop {
+    align-items: center;
+    padding: 24px;
+  }
+
+  .sheet {
+    border-radius: 28px;
+    padding-bottom: 24px;
+  }
 }

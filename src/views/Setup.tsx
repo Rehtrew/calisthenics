@@ -7,6 +7,9 @@ import { fmtClock, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
 import { BackButton, Button, Icon, IconButton, Stepper, Toggle, TopBar } from '../components/ui'
 
+/** The program says 2 minutes between sets; the setup screen always starts there. */
+const DEFAULT_REST_SECONDS = 120
+
 export function Setup({ dayId }: { dayId: string }) {
   const s = useAppState()
   const { programId, levelIndex } = s.settings
@@ -16,7 +19,7 @@ export function Setup({ dayId }: { dayId: string }) {
 
   const [order, setOrder] = useState<number[]>(() => (day ? day.exercises.map((_, i) => i) : []))
   const [skipLegs, setSkipLegs] = useState(s.settings.skipLegs)
-  const [rest, setRest] = useState(s.settings.restSeconds)
+  const [rest, setRest] = useState(DEFAULT_REST_SECONDS)
 
   useEffect(() => {
     if (!day) navigate({ name: 'home' }, { replace: true })
