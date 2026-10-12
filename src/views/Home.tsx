@@ -1,13 +1,14 @@
-import { useState, type CSSProperties } from 'react'
+import { useState } from 'react'
 import { useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { getLevel, LEVEL_COUNT } from '../data/programs'
-import { byEnded, countThisMonth, estimateMinutes, recentAverage, sessionsForDay, suggestNextDay, weightLog } from '../lib/stats'
-import { cap, fmtKg, fmtTime, relativeDay } from '../lib/format'
+import { byEnded, countThisMonth, estimateMinutes, recentAverage, suggestNextDay, weightLog } from '../lib/stats'
+import { fmtKg, fmtTime, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
 import { useSyncStatus } from '../lib/sync'
 import { Button, Icon, IconButton, Stat, TopBar } from '../components/ui'
 import { SessionRow } from '../components/SessionRow'
+import { DayChips } from '../components/DayChips'
 import { StreakCalendar } from '../components/StreakCalendar'
 
 /** Remembered across screens so coming back from a preview keeps the chosen day. */
@@ -24,7 +25,6 @@ export function Home() {
     setSelectedIdState(id)
   }
   const selected = level.days.find((d) => d.id === selectedId) ?? next
-  const isNext = selected.id === next.id
   const exercises = selected.exercises.filter((e) => !(skipLegs && isLegs(e.name)))
   const minutes = estimateMinutes(exercises, restSeconds)
   const atLevel = s.sessions.filter((x) => x.levelIndex === levelIndex && x.status === 'completed').length
@@ -73,7 +73,6 @@ export function Home() {
       )}
 
       <section className="hero">
-        <p className="eyebrow">{isNext ? 'Næste træning' : 'Valgt træning'}</p>
         <h1 className="display day-title swap" key={selected.id}>
           {selected.label}
         </h1>
@@ -83,11 +82,15 @@ export function Home() {
             Se øvelser →
           </button>
         </p>
+
+        <DayChips days={level.days} selectedId={selected.id} nextId={next.id} selectedIndex={selectedIndex} cols={cols} rows={rows} sessions={s.sessions} levelIndex={levelIndex} onSelect={setSelectedId} />
+
+        <Button onClick={() => navigate({ name: 'setup', dayId: selected.id })}>Start {selected.label}</Button>
+
         {last && (
           <p className="muted last-trained">
             Senest trænet: <strong>{last.dayLabel}</strong>
-            {last.levelIndex !== levelIndex ? ` (Level ${last.levelIndex + 1})` : ''} ·{' '}
-            {relativeDay(last.endedAt)}
+            {last.levelIndex !== levelIndex ? ` (Level ${last.levelIndex + 1})` : ''} · {relativeDay(last.endedAt)}
             {last.status === 'aborted' ? ' · afbrudt' : ''}
           </p>
         )}
@@ -104,34 +107,6 @@ export function Home() {
             {' '}· {relativeDay(latestWeight.at)}
           </button>
         )}
-        <div
-          className="day-chips"
-          role="radiogroup"
-          aria-label="Vælg dag"
-          style={{ '--cols': cols, '--rows': rows, '--col': selectedIndex % cols, '--row': Math.floor(selectedIndex / cols) } as CSSProperties}
-        >
-          <span className="chips-thumb" aria-hidden="true" />
-          {level.days.map((d, i) => {
-            const lastForDay = sessionsForDay(s.sessions, levelIndex, d.id).at(-1)
-            return (
-              <button
-                key={d.id}
-                role="radio"
-                aria-checked={d.id === selected.id}
-                className={`chip stagger ${d.id === selected.id ? 'active' : ''}`}
-                style={{ '--i': i } as CSSProperties}
-                onClick={() => setSelectedId(d.id)}
-              >
-                <span>
-                  {d.id === next.id && <i className="dot" aria-label="Foreslået" />}
-                  {d.label}
-                </span>
-                <small>{lastForDay ? cap(relativeDay(lastForDay.endedAt)) : 'Ikke trænet'}</small>
-              </button>
-            )
-          })}
-        </div>
-        <Button onClick={() => navigate({ name: 'setup', dayId: selected.id })}>Start {selected.label}</Button>
       </section>
 
       <section className="stats">

@@ -187,7 +187,7 @@ ul {
 }
 
 .hero {
-  margin: 8px 0 32px;
+  margin: 24px 0 48px;
 }
 
 .display {
@@ -398,6 +398,10 @@ ul {
 }
 
 .last-trained {
+  margin-top: 20px;
+}
+
+.last-trained + .last-trained {
   margin-top: 6px;
 }
 
@@ -407,43 +411,66 @@ ul {
 }
 
 .day-chips {
+  --gap: 8px;
+  --cell-w: calc((100% - (var(--cols, 3) - 1) * var(--gap)) / var(--cols, 3));
+  --cell-h: calc((100% - (var(--rows, 1) - 1) * var(--gap)) / var(--rows, 1));
+  --left: calc(var(--col, 0) * (var(--cell-w) + var(--gap)));
+  --top: calc(var(--row, 0) * (var(--cell-h) + var(--gap)));
   position: relative;
-  display: grid;
-  grid-template-columns: repeat(var(--cols, 3), 1fr);
-  gap: 8px;
-  margin: 20px 0 24px;
+  margin: 32px 0 28px;
 }
 
-.chips-thumb {
+.chips-layer {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: var(--gap);
+}
+
+.chips-active {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: calc((100% - (var(--cols, 3) - 1) * 8px) / var(--cols, 3));
-  height: calc((100% - (var(--rows, 1) - 1) * 8px) / var(--rows, 1));
-  border-radius: 16px;
-  background: var(--text);
-  transform: translate(calc(var(--col, 0) * (100% + 8px)), calc(var(--row, 0) * (100% + 8px)));
-  transition: transform 300ms var(--ease-out);
+  inset: 0;
+  pointer-events: none;
+  clip-path: inset(var(--top) calc(100% - var(--left) - var(--cell-w)) calc(100% - var(--top) - var(--cell-h)) var(--left) round 18px);
+  transition: clip-path 320ms var(--ease-out);
 }
 
 .chip {
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--border);
+  justify-content: center;
+  gap: 4px;
+  min-height: 84px;
+  padding: 16px 16px 14px;
+  border-radius: 18px;
+  background: var(--surface);
   min-width: 0;
   text-align: left;
-  transition: transform 160ms var(--ease-out), box-shadow 200ms ease, color 200ms ease;
+  font-size: 18px;
+  transition: transform 160ms var(--ease-out);
 }
 
 .chip:active {
   transform: scale(0.97);
+}
+
+.chip small {
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chips-active .chip {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.chips-active .chip small {
+  color: var(--bg);
+  opacity: 0.6;
 }
 
 .chip .dot {
@@ -452,38 +479,15 @@ ul {
   height: 7px;
   border-radius: 50%;
   background: var(--accent);
-  margin-right: 7px;
+  margin-right: 8px;
   vertical-align: 2px;
-}
-
-.chip small {
-  color: var(--muted);
-  font-size: 13px;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.chip.active {
-  box-shadow: none;
-  color: var(--bg);
-}
-
-.chip small {
-  transition: color 200ms ease;
-}
-
-.chip.active small {
-  color: var(--bg);
-  opacity: 0.6;
 }
 
 .stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin-bottom: 32px;
+  margin-bottom: 44px;
 }
 
 .stats-3 {
@@ -688,7 +692,7 @@ ul {
 }
 
 .section {
-  margin-bottom: 32px;
+  margin-bottom: 44px;
 }
 
 .row-head {
@@ -1460,8 +1464,8 @@ ul {
     color: var(--text);
   }
 
-  .chip:hover:not(.active) {
-    box-shadow: inset 0 0 0 1px var(--muted);
+  .chips-layer .chip:hover {
+    background: var(--surface-2);
   }
 
   .row:hover .row-title,
