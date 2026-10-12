@@ -1492,31 +1492,41 @@ ul {
   }
 }
 
+::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
+/* opaque screens that push, never a crossfade: the new screen covers the old */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 320ms;
+  mix-blend-mode: normal;
   animation-timing-function: var(--ease-out);
   animation-fill-mode: both;
 }
 
 html[data-nav='forward']::view-transition-old(root) {
-  animation-name: vt-fade-out, vt-push-left;
+  animation-name: vt-dim, vt-push-left;
+  animation-duration: 320ms;
 }
 
 html[data-nav='forward']::view-transition-new(root) {
-  animation-name: vt-fade-in, vt-enter-right;
+  animation-name: vt-enter-right;
+  animation-duration: 320ms;
 }
 
 html[data-nav='back']::view-transition-old(root) {
-  animation-name: vt-fade-out, vt-push-right;
+  z-index: 1;
+  animation-name: vt-exit-right;
+  animation-duration: 280ms;
 }
 
 html[data-nav='back']::view-transition-new(root) {
-  animation-name: vt-fade-in, vt-enter-left;
+  animation-name: vt-undim, vt-return-left;
+  animation-duration: 280ms;
 }
 
 ::view-transition-group(day-title) {
-  animation-duration: 360ms;
+  animation-duration: 340ms;
   animation-timing-function: var(--ease-out);
 }
 
@@ -1526,39 +1536,39 @@ html[data-nav='back']::view-transition-new(root) {
   mix-blend-mode: normal;
 }
 
-@keyframes vt-fade-in {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes vt-fade-out {
-  to {
-    opacity: 0;
-  }
-}
-
 @keyframes vt-enter-right {
   from {
-    transform: translateX(40px);
+    transform: translateX(100%);
   }
 }
 
 @keyframes vt-push-left {
   to {
-    transform: translateX(-24px);
+    transform: translateX(-28%);
   }
 }
 
-@keyframes vt-enter-left {
-  from {
-    transform: translateX(-40px);
-  }
-}
-
-@keyframes vt-push-right {
+@keyframes vt-dim {
   to {
-    transform: translateX(24px);
+    opacity: 0.55;
+  }
+}
+
+@keyframes vt-exit-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes vt-return-left {
+  from {
+    transform: translateX(-28%);
+  }
+}
+
+@keyframes vt-undim {
+  from {
+    opacity: 0.55;
   }
 }
 
