@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useRoute } from './lib/router'
+import { getLastDirection, useRoute } from './lib/router'
 import { useAppState } from './lib/store'
 import { Home } from './views/Home'
 import { Setup } from './views/Setup'
@@ -20,6 +20,11 @@ export default function App() {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0b0b0b' : '#f4f4f2')
   }, [theme])
 
+  const enter = getLastDirection() === 'back' ? 'no-enter' : undefined
+  return <div className={enter}>{screen(route)}</div>
+}
+
+function screen(route: ReturnType<typeof useRoute>) {
   switch (route.name) {
     case 'setup':
       return <Setup key={route.dayId} dayId={route.dayId} />

@@ -1621,6 +1621,18 @@ ul {
   animation: swap-in 200ms var(--ease-out);
 }
 
+/* screens reached by going back are already familiar: no entrance choreography */
+.no-enter .page,
+.no-enter .screen,
+.no-enter .stagger,
+.no-enter .rise,
+.no-enter .pop,
+.no-enter .swap,
+.no-enter .story-number,
+.no-enter .story-copy {
+  animation: none;
+}
+
 @keyframes page-in {
   from {
     opacity: 0;

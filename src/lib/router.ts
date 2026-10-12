@@ -15,6 +15,11 @@ export type Route =
 
 type Direction = 'forward' | 'back'
 
+let lastDirection: Direction = 'forward'
+
+/** How the current screen was reached; screens reached by going back skip their entrance animations. */
+export const getLastDirection = () => lastDirection
+
 const initial: Route = getState().active ? { name: 'workout' } : { name: 'home' }
 
 let route: Route = (history.state?.route as Route | undefined) ?? initial
@@ -34,6 +39,7 @@ type ViewTransitionDocument = Document & {
  * new screen rather than a stale copy of the old one.
  */
 function applyRoute(next: Route, direction: Direction) {
+  lastDirection = direction
   const doc = document as ViewTransitionDocument
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const update = () => {
