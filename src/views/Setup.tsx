@@ -6,6 +6,7 @@ import { estimateMinutes, sessionsForDay } from '../lib/stats'
 import { fmtClock, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
 import { BackButton, Button, Icon, IconButton, Stepper, Toggle, TopBar } from '../components/ui'
+import { ExerciseSheet } from '../components/ExerciseSheet'
 
 /** The program says 2 minutes between sets; the setup screen always starts there. */
 const DEFAULT_REST_SECONDS = 120
@@ -19,6 +20,7 @@ export function Setup({ dayId }: { dayId: string }) {
   const [order, setOrder] = useState<number[]>(() => (day ? day.exercises.map((_, i) => i) : []))
   const [skipLegs, setSkipLegs] = useState(s.settings.skipLegs)
   const [rest, setRest] = useState(DEFAULT_REST_SECONDS)
+  const [open, setOpen] = useState<{ name: string; detail: string } | null>(null)
 
   useEffect(() => {
     if (!day) navigate({ name: 'home' }, { replace: true })
@@ -87,13 +89,13 @@ export function Setup({ dayId }: { dayId: string }) {
             const skipped = skipLegs && isLegs(e.name)
             return (
               <li key={order[pos]} className={`exercise stagger ${skipped ? 'skipped' : ''}`} style={{ '--i': pos } as CSSProperties}>
-                <span className="exercise-main">
+                <button className="exercise-main as-button" onClick={() => setOpen({ name: e.name, detail: `${e.sets} × ${e.reps.toLowerCase()}` })}>
                   <span className="exercise-name">{e.name}</span>
                   <span className="exercise-sub">
                     {e.sets} × {e.reps.toLowerCase()}
                     {skipped ? ' · Springes over' : ''}
                   </span>
-                </span>
+                </button>
                 <span className="exercise-actions">
                   <IconButton label="Flyt op" disabled={pos === 0} onClick={() => move(pos, -1)}>
                     {Icon.up}
@@ -116,6 +118,8 @@ export function Setup({ dayId }: { dayId: string }) {
           <p className="muted small center">Den igangværende træning ({s.active.dayLabel}) gemmes som afbrudt</p>
         )}
       </div>
+
+      {open && <ExerciseSheet name={open.name} detail={open.detail} onClose={() => setOpen(null)} />}
     </div>
   )
 }

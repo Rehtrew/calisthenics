@@ -7,6 +7,9 @@ import { fmtClock, fmtDuration } from '../lib/format'
 import { beep, buzz, primeAudio, useNow, useWakeLock } from '../lib/device'
 import type { ActiveWorkout, SetLog, SetTarget } from '../lib/types'
 import { Button, Icon, IconButton, Sheet } from '../components/ui'
+import { musclesFor, viewsFor } from '../lib/muscles'
+import { BodyFigure } from '../components/body/BodyFigure'
+import { ExerciseSheet } from '../components/ExerciseSheet'
 
 export function Workout() {
   const s = useAppState()
@@ -17,6 +20,7 @@ export function Workout() {
   useWakeLock(!!a)
   const now = useNow(1000)
   const [abort, setAbort] = useState(false)
+  const [showMuscles, setShowMuscles] = useState(false)
   if (!a) return null
 
   const ex = a.exercises[a.exerciseIndex]
@@ -79,8 +83,11 @@ export function Workout() {
           lastTime={lastTime}
           upNext={upNext}
           onLog={(achieved, full) => done(logSet(achieved, full))}
+          onShowMuscles={() => setShowMuscles(true)}
         />
       )}
+
+      {showMuscles && <ExerciseSheet name={ex.name} detail={`${ex.sets} × ${ex.reps.toLowerCase()}`} onClose={() => setShowMuscles(false)} />}
 
       {abort && (
         <Sheet
@@ -108,14 +115,18 @@ function SetPanel({
   lastTime,
   upNext,
   onLog,
+  onShowMuscles,
 }: {
   active: ActiveWorkout
   target: SetTarget
   lastTime: SetLog | undefined
   upNext: UpNext
   onLog: (achieved: number | null, full: boolean) => void
+  onShowMuscles: () => void
 }) {
   const ex = a.exercises[a.exerciseIndex]
+  const muscles = musclesFor(ex.name)
+  const view = viewsFor(muscles)[0]
   const [mode, setMode] = useState<'ask' | 'count'>(target.isMax ? 'count' : 'ask')
   const [count, setCount] = useState(() => {
     if (target.isMax) return lastTime?.achieved ?? 0
@@ -133,20 +144,25 @@ function SetPanel({
         <p className="eyebrow rise" style={{ '--i': 0 } as CSSProperties}>
           Øvelse {a.exerciseIndex + 1} af {a.exercises.length} · sæt {a.setIndex + 1} af {ex.sets}
         </p>
-        <h1 className="exercise-title rise" style={{ '--i': 1 } as CSSProperties}>
-          {ex.name}
-        </h1>
+        <button className="exercise-title-btn rise" style={{ '--i': 1 } as CSSProperties} onClick={onShowMuscles} aria-label={`${ex.name}, vis muskler`}>
+          <h1 className="exercise-title">{ex.name}</h1>
+        </button>
 
         {mode === 'ask' ? (
-          <>
-            <div className="target rise" style={{ '--i': 2 } as CSSProperties}>
-              {target.value}
+          <div className="target-row">
+            <div>
+              <div className="target rise" style={{ '--i': 2 } as CSSProperties}>
+                {target.value}
+              </div>
+              <p className="target-unit rise" style={{ '--i': 3 } as CSSProperties}>
+                {unitLabel(target.unit)}
+                {target.hint ? ` · ${target.hint}` : ''}
+              </p>
             </div>
-            <p className="target-unit rise" style={{ '--i': 3 } as CSSProperties}>
-              {unitLabel(target.unit)}
-              {target.hint ? ` · ${target.hint}` : ''}
-            </p>
-          </>
+            <button className="figure-btn rise" style={{ '--i': 3 } as CSSProperties} onClick={onShowMuscles} aria-label="Vis muskelgrupper">
+              <BodyFigure view={view} primary={muscles.primary} secondary={muscles.secondary} height={150} />
+            </button>
+          </div>
         ) : (
           <>
             <p className="eyebrow">{target.isMax ? 'Max – hvor mange nåede du?' : `Hvor mange nåede du af ${target.value}?`}</p>

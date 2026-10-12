@@ -1,4 +1,4 @@
-import { useEffect, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { updateSettings, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { getDay, getLevel } from '../data/programs'
@@ -6,9 +6,12 @@ import { estimateMinutes, sessionsForDay } from '../lib/stats'
 import { relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
 import { BackButton, Button, TopBar } from '../components/ui'
+import { labelList, musclesFor } from '../lib/muscles'
+import { ExerciseSheet } from '../components/ExerciseSheet'
 
 export function DayPreview({ levelIndex, dayId }: { levelIndex: number; dayId: string }) {
   const s = useAppState()
+  const [open, setOpen] = useState<{ name: string; detail: string } | null>(null)
   const level = getLevel(levelIndex)
   const day = getDay(levelIndex, dayId)
 
@@ -57,14 +60,13 @@ export function DayPreview({ levelIndex, dayId }: { levelIndex: number; dayId: s
             const logs = last?.exercises.find((x) => x.name === e.name)?.logs
             return (
               <li key={i} className="exercise stagger" style={{ '--i': i } as CSSProperties}>
-                <span className="exercise-main">
+                <button className="exercise-main as-button" onClick={() => setOpen({ name: e.name, detail: `${e.sets} × ${e.reps.toLowerCase()}` })}>
                   <span className="exercise-name">{e.name}</span>
                   <span className="exercise-sub">
-                    {e.sets} × {e.reps.toLowerCase()}
-                    {isLegs(e.name) ? ' · ben' : ''}
+                    {e.sets} × {e.reps.toLowerCase()} · {labelList(musclesFor(e.name).primary)}
                     {logs?.length ? ` · Sidst ${logs.map((l) => l.achieved ?? '✓').join(' · ')}` : ''}
                   </span>
-                </span>
+                </button>
                 <span className="exercise-index">{i + 1}</span>
               </li>
             )
@@ -75,6 +77,8 @@ export function DayPreview({ levelIndex, dayId }: { levelIndex: number; dayId: s
       <div className="cta-bar">
         <Button onClick={start}>{isCurrent ? `Start ${day.label}` : `Skift til ${level.name} og start`}</Button>
       </div>
+
+      {open && <ExerciseSheet name={open.name} detail={open.detail} onClose={() => setOpen(null)} />}
     </div>
   )
 }
