@@ -149,14 +149,12 @@ ul {
 .display {
   font-size: clamp(64px, 22vw, 112px);
   font-weight: 500;
-  letter-spacing: -0.045em;
   line-height: 0.95;
   margin: 6px 0 12px;
 }
 
 .display-unit {
   font-size: 0.4em;
-  letter-spacing: -0.02em;
   margin-left: 0.08em;
   color: var(--muted);
 }
@@ -164,7 +162,6 @@ ul {
 .title {
   font-size: 34px;
   font-weight: 500;
-  letter-spacing: -0.03em;
   line-height: 1.1;
   margin-top: 6px;
 }
@@ -392,7 +389,6 @@ ul {
   display: block;
   font-size: 40px;
   font-weight: 500;
-  letter-spacing: -0.04em;
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -410,7 +406,6 @@ ul {
 .stat-num small {
   font-size: 0.5em;
   color: var(--muted);
-  letter-spacing: 0;
 }
 
 .stat-label {
@@ -429,7 +424,6 @@ ul {
 .cal-title {
   font-size: 24px;
   font-weight: 500;
-  letter-spacing: -0.02em;
 }
 
 .cal-nav {
@@ -458,7 +452,6 @@ ul {
 .cal-stat strong {
   font-size: 24px;
   font-weight: 500;
-  letter-spacing: -0.02em;
 }
 
 .cal-grid {
@@ -623,7 +616,6 @@ ul {
 .row-value {
   font-size: 22px;
   font-weight: 500;
-  letter-spacing: -0.02em;
   flex: none;
 }
 
@@ -703,7 +695,6 @@ ul {
 .elapsed {
   font-size: 32px;
   font-weight: 500;
-  letter-spacing: -0.03em;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
   margin-top: 2px;
@@ -751,7 +742,6 @@ ul {
 .exercise-title {
   font-size: clamp(30px, 9vw, 44px);
   font-weight: 500;
-  letter-spacing: -0.03em;
   line-height: 1.05;
   margin: 10px 0 28px;
 }
@@ -759,7 +749,6 @@ ul {
 .target {
   font-size: clamp(96px, 34vw, 176px);
   font-weight: 500;
-  letter-spacing: -0.06em;
   line-height: 0.9;
   font-variant-numeric: tabular-nums;
 }
@@ -816,7 +805,6 @@ ul {
 .big-stepper .value {
   font-size: clamp(80px, 26vw, 128px);
   font-weight: 500;
-  letter-spacing: -0.05em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -918,21 +906,18 @@ ul {
 .story-number {
   font-size: clamp(88px, 28vw, 150px);
   font-weight: 500;
-  letter-spacing: -0.05em;
   line-height: 0.95;
   animation: story-in 0.35s ease-out;
 }
 
 .story-unit {
   font-size: 0.32em;
-  letter-spacing: -0.01em;
   margin-left: 0.12em;
 }
 
 .story-text {
   font-size: clamp(26px, 7.5vw, 36px);
   font-weight: 500;
-  letter-spacing: -0.02em;
   line-height: 1.15;
 }
 
@@ -1008,7 +993,6 @@ ul {
 .sheet h2 {
   font-size: 26px;
   font-weight: 500;
-  letter-spacing: -0.02em;
 }
 
 .sheet p {
