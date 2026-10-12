@@ -58,7 +58,11 @@ export function Workout() {
     <div className="screen">
       <header className="topbar workout-bar">
         <div className="workout-bar-left">
-          <IconButton label="Tilbage til forrige sæt" className="plain back-set" disabled={doneSets === 0} onClick={undoLastSet}>
+          <IconButton
+            label={doneSets === 0 ? 'Afbryd træningen' : 'Tilbage til forrige sæt'}
+            className="plain back-set"
+            onClick={() => (doneSets === 0 ? setAbort(true) : undoLastSet())}
+          >
             {Icon.back}
           </IconButton>
           <div>

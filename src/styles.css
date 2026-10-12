@@ -1276,10 +1276,6 @@ ul {
   margin-left: -12px;
 }
 
-.back-set:disabled {
-  opacity: 0.25;
-}
-
 .tags {
   display: flex;
   flex-wrap: wrap;
