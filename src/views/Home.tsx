@@ -40,8 +40,8 @@ export function Home() {
           </span>
         }
         right={
-          <IconButton label="Indstillinger" onClick={() => navigate({ name: 'settings' })}>
-            {Icon.more}
+          <IconButton label="Indstillinger" className="plain" onClick={() => navigate({ name: 'settings' })}>
+            {Icon.menu}
           </IconButton>
         }
       />
