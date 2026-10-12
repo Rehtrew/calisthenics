@@ -10,13 +10,20 @@ import { Button, Icon, IconButton, Stat, TopBar } from '../components/ui'
 import { SessionRow } from '../components/SessionRow'
 import { StreakCalendar } from '../components/StreakCalendar'
 
+/** Remembered across screens so coming back from a preview keeps the chosen day. */
+let rememberedDayId: string | null = null
+
 export function Home() {
   const s = useAppState()
   const { programId, levelIndex, restSeconds, skipLegs } = s.settings
   const program = getProgram(programId)
   const level = getLevel(programId, levelIndex)
   const next = suggestNextDay(level, s.sessions, programId, levelIndex)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedIdState] = useState<string | null>(rememberedDayId)
+  const setSelectedId = (id: string) => {
+    rememberedDayId = id
+    setSelectedIdState(id)
+  }
   const selected = level.days.find((d) => d.id === selectedId) ?? next
   const isNext = selected.id === next.id
   const exercises = selected.exercises.filter((e) => !(skipLegs && isLegs(e.name)))
