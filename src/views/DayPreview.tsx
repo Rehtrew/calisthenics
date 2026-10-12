@@ -8,6 +8,7 @@ import { isLegs } from '../lib/reps'
 import { BackButton, Button, TopBar } from '../components/ui'
 import { labelList, musclesFor } from '../lib/muscles'
 import { ExerciseSheet } from '../components/ExerciseSheet'
+import { DEFAULT_REST_SECONDS } from '../lib/defaults'
 
 export function DayPreview({ levelIndex, dayId }: { levelIndex: number; dayId: string }) {
   const s = useAppState()
@@ -23,7 +24,7 @@ export function DayPreview({ levelIndex, dayId }: { levelIndex: number; dayId: s
   const isCurrent = s.settings.levelIndex === levelIndex
   const last = sessionsForDay(s.sessions, levelIndex, dayId).at(-1)
   const totalSets = day.exercises.reduce((n, e) => n + e.sets, 0)
-  const minutes = estimateMinutes(day.exercises, s.settings.restSeconds)
+  const minutes = estimateMinutes(day.exercises, DEFAULT_REST_SECONDS)
   const legs = day.exercises.filter((e) => isLegs(e.name)).length
 
   const start = () => {

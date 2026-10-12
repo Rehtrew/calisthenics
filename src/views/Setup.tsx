@@ -7,9 +7,8 @@ import { fmtClock, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
 import { BackButton, Button, Icon, IconButton, Stepper, Toggle, TopBar } from '../components/ui'
 import { ExerciseSheet } from '../components/ExerciseSheet'
+import { DEFAULT_REST_SECONDS, DEFAULT_SKIP_LEGS } from '../lib/defaults'
 
-/** The program says 2 minutes between sets; the setup screen always starts there. */
-const DEFAULT_REST_SECONDS = 120
 
 export function Setup({ dayId }: { dayId: string }) {
   const s = useAppState()
@@ -18,7 +17,7 @@ export function Setup({ dayId }: { dayId: string }) {
   const day = getDay(levelIndex, dayId)
 
   const [order, setOrder] = useState<number[]>(() => (day ? day.exercises.map((_, i) => i) : []))
-  const [skipLegs, setSkipLegs] = useState(s.settings.skipLegs)
+  const [skipLegs, setSkipLegs] = useState(DEFAULT_SKIP_LEGS)
   const [rest, setRest] = useState(DEFAULT_REST_SECONDS)
   const [open, setOpen] = useState<{ name: string; detail: string } | null>(null)
 

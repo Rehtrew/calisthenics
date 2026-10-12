@@ -7,7 +7,7 @@ const KEY = 'calisthenics:v1'
 const defaultSettings: Settings = {
   levelIndex: 0,
   restSeconds: 120,
-  skipLegs: false,
+  skipLegs: true,
   theme: 'dark',
   weightKg: 106,
 }

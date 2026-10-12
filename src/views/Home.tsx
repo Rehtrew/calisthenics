@@ -5,6 +5,7 @@ import { getLevel, LEVEL_COUNT } from '../data/programs'
 import { byEnded, countThisMonth, estimateMinutes, recentAverage, suggestNextDay, weightLog } from '../lib/stats'
 import { fmtKg, fmtTime, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
+import { DEFAULT_REST_SECONDS, DEFAULT_SKIP_LEGS } from '../lib/defaults'
 import { useSyncStatus } from '../lib/sync'
 import { Button, Icon, IconButton, Stat, TopBar } from '../components/ui'
 import { SessionRow } from '../components/SessionRow'
@@ -16,7 +17,7 @@ let rememberedDayId: string | null = null
 
 export function Home() {
   const s = useAppState()
-  const { levelIndex, restSeconds, skipLegs } = s.settings
+  const { levelIndex } = s.settings
   const level = getLevel(levelIndex)
   const next = suggestNextDay(level, s.sessions, levelIndex)
   const [selectedId, setSelectedIdState] = useState<string | null>(rememberedDayId)
@@ -25,8 +26,8 @@ export function Home() {
     setSelectedIdState(id)
   }
   const selected = level.days.find((d) => d.id === selectedId) ?? next
-  const exercises = selected.exercises.filter((e) => !(skipLegs && isLegs(e.name)))
-  const minutes = estimateMinutes(exercises, restSeconds)
+  const exercises = selected.exercises.filter((e) => !(DEFAULT_SKIP_LEGS && isLegs(e.name)))
+  const minutes = estimateMinutes(exercises, DEFAULT_REST_SECONDS)
   const atLevel = s.sessions.filter((x) => x.levelIndex === levelIndex && x.status === 'completed').length
   const avg = recentAverage(s.sessions)
   const sorted = [...s.sessions].sort(byEnded)
