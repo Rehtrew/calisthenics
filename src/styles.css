@@ -1409,8 +1409,8 @@ ul {
 
 /* motion utilities */
 .stagger {
-  animation: fade-up 260ms var(--ease-out) backwards;
-  animation-delay: calc(min(var(--i, 0), 10) * 35ms);
+  animation: fade-up 240ms var(--ease-out) backwards;
+  animation-delay: calc(min(var(--i, 0), 8) * 22ms);
 }
 
 .swap {
