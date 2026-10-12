@@ -1525,6 +1525,7 @@ html[data-nav='back']::view-transition-new(root) {
   animation-duration: 280ms;
 }
 
+/* the day title morphs when both screens have one; otherwise it fades fast instead of freezing */
 ::view-transition-group(day-title) {
   animation-duration: 340ms;
   animation-timing-function: var(--ease-out);
@@ -1534,6 +1535,26 @@ html[data-nav='back']::view-transition-new(root) {
 ::view-transition-new(day-title) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+::view-transition-old(day-title):only-child {
+  animation: vt-title-out 150ms var(--ease-out) both;
+}
+
+::view-transition-new(day-title):only-child {
+  animation: vt-title-in 240ms var(--ease-out) 80ms both;
+}
+
+@keyframes vt-title-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-title-in {
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes vt-enter-right {
