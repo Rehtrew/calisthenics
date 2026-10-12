@@ -4,7 +4,7 @@ import { navigate } from '../lib/router'
 import { parseReps, unitLabel } from '../lib/reps'
 import { lastSetResult, sessionsForDay } from '../lib/stats'
 import { fmtClock, fmtDuration } from '../lib/format'
-import { beep, buzz, primeAudio, useNow, useWakeLock } from '../lib/device'
+import { beep, buzz, primeAudio, useNow, useWakeLock, useWindowHeight } from '../lib/device'
 import type { ActiveWorkout, SetLog, SetTarget } from '../lib/types'
 import { Button, Icon, IconButton, Sheet } from '../components/ui'
 import { figureView, labelList, musclesFor, viewsFor, MUSCLE_LABEL } from '../lib/muscles'
@@ -63,7 +63,7 @@ export function Workout() {
           </IconButton>
           <div>
             <span className="eyebrow">
-              {a.dayLabel} · Level {a.levelIndex + 1}
+              Øvelse {a.exerciseIndex + 1} af {a.exercises.length}
             </span>
             <div className="elapsed" aria-label="Tid i gang">
               {fmtDuration(now - a.startedAt)}
@@ -86,7 +86,6 @@ export function Workout() {
           active={a}
           target={parseReps(ex.reps, a.setIndex)}
           lastTime={lastTime}
-          upNext={upNext}
           onLog={(achieved, full) => done(logSet(achieved, full))}
           onShowMuscles={() => setShowMuscles(true)}
         />
@@ -118,14 +117,12 @@ function SetPanel({
   active: a,
   target,
   lastTime,
-  upNext,
   onLog,
   onShowMuscles,
 }: {
   active: ActiveWorkout
   target: SetTarget
   lastTime: SetLog | undefined
-  upNext: UpNext
   onLog: (achieved: number | null, full: boolean) => void
   onShowMuscles: () => void
 }) {
@@ -137,17 +134,14 @@ function SetPanel({
     if (target.isMax) return lastTime?.achieved ?? 0
     return Math.max(0, (target.value ?? 1) - 1)
   })
-
-  const lastHint =
-    lastTime && lastTime.achieved != null
-      ? `Sidst: ${lastTime.achieved}${lastTime.unit === 's' ? ' sek' : ''}${lastTime.full || target.isMax ? '' : ` af ${lastTime.target}`}`
-      : null
+  const windowHeight = useWindowHeight()
+  const figureHeight = view.endsWith('Torso') ? Math.min(280, Math.round(windowHeight * 0.34)) : Math.min(300, Math.round(windowHeight * 0.38))
 
   return (
     <>
       <div className="screen-main">
         <p className="eyebrow rise" style={{ '--i': 0 } as CSSProperties}>
-          Øvelse {a.exerciseIndex + 1} af {a.exercises.length} · sæt {a.setIndex + 1} af {ex.sets}
+          Sæt {a.setIndex + 1} af {ex.sets}
         </p>
         <button className="exercise-title-btn rise" style={{ '--i': 1 } as CSSProperties} onClick={onShowMuscles} aria-label={`${ex.name}, vis muskler`}>
           <h1 className="exercise-title">{ex.name}</h1>
@@ -165,7 +159,7 @@ function SetPanel({
               </p>
             </div>
             <button className="figure-btn rise" style={{ '--i': 3 } as CSSProperties} onClick={onShowMuscles} aria-label="Vis muskelgrupper">
-              <BodyFigure view={view} primary={muscles.primary} secondary={muscles.secondary} height={view.endsWith('Torso') ? 280 : 300} />
+              <BodyFigure view={view} primary={muscles.primary} secondary={muscles.secondary} height={figureHeight} />
             </button>
           </div>
         ) : (
@@ -195,11 +189,6 @@ function SetPanel({
             </li>
           ))}
         </ul>
-        {lastHint && <p className="last-hint">{lastHint}</p>}
-
-        <p className="next rise" style={{ '--i': 5 } as CSSProperties}>
-          Næste: <strong>{upNext.name}</strong> · {upNext.detail}
-        </p>
       </div>
 
       <div className="screen-actions">

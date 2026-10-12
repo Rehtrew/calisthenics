@@ -73,3 +73,14 @@ export function useWakeLock(enabled: boolean) {
     }
   }, [enabled])
 }
+
+/** Viewport height, updated on resize, for layouts that must fit without scrolling. */
+export function useWindowHeight(): number {
+  const [height, setHeight] = useState(() => window.innerHeight)
+  useEffect(() => {
+    const update = () => setHeight(window.innerHeight)
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+  return height
+}

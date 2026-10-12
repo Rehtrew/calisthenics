@@ -832,7 +832,7 @@ ul {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 24px 0;
+  padding: 16px 0;
 }
 
 .screen-actions {
@@ -1280,8 +1280,7 @@ ul {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 18px;
-  max-width: 60%;
+  margin-top: 12px;
 }
 
 .tag {
