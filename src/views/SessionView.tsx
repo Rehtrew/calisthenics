@@ -3,6 +3,7 @@ import { deleteSession, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { exerciseScore, previousSession, sessionScore } from '../lib/stats'
 import { fmtDateLong, fmtDuration, fmtTime } from '../lib/format'
+import { energy } from '../lib/energy'
 import type { ExerciseLog } from '../lib/types'
 import { BackButton, Button, Sheet, Stat, TopBar } from '../components/ui'
 
@@ -20,14 +21,17 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
   const prev = previousSession(s.sessions, session)
   const prevScore = prev ? sessionScore(prev) : null
   const completed = session.status === 'completed'
+  const kcal = energy(session, s.settings.weightKg).kcal
 
   let compare: string
+  let compareClass = 'muted'
   if (!prev || !prevScore) compare = 'Første gang på denne dag'
   else {
     const dPct = score.pct - prevScore.pct
     const dReps = score.reps - prevScore.reps
     const sign = (n: number) => (n > 0 ? '+' : '')
     compare = `${sign(dPct)}${dPct} point og ${sign(dReps)}${dReps} reps i forhold til sidst`
+    compareClass = dReps > 0 || dPct > 0 ? 'positive' : 'muted'
   }
 
   return (
@@ -56,13 +60,14 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
         </p>
       </section>
 
-      <section className="stats stats-3">
+      <section className="stats">
         <Stat value={fmtDuration(session.endedAt - session.startedAt)} label="Varighed" />
         <Stat value={`${score.setsDone}/${score.setsPlanned}`} label="Sæt" />
         <Stat value={score.reps} label="Reps i alt" />
+        <Stat value={kcal} unit="kcal" label={`Cirka, ved ${s.settings.weightKg} kg`} />
       </section>
 
-      <p className={`compare ${prev ? 'accent' : 'muted'}`}>{compare}</p>
+      <p className={`compare ${compareClass}`}>{compare}</p>
 
       <section className="section">
         <p className="eyebrow">Øvelser</p>

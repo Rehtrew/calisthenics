@@ -75,6 +75,13 @@ export function Settings() {
         </div>
         <div className="field">
           <div>
+            <p className="field-label">Vægt</p>
+            <p className="field-hint">Bruges til kalorier og løftet vægt</p>
+          </div>
+          <Stepper value={s.settings.weightKg} min={40} max={200} onChange={(weightKg) => updateSettings({ weightKg })} format={(v) => `${v} kg`} />
+        </div>
+        <div className="field">
+          <div>
             <p className="field-label">Tema</p>
           </div>
           <Segmented

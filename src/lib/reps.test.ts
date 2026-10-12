@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { isLegs, parseReps } from './reps'
-import { estimateMinutes, sessionScore, suggestNextDay, weeksGrid } from './stats'
+import { estimateMinutes, sessionScore, suggestNextDay } from './stats'
 import { beginner } from '../data/programs'
 import type { Session } from './types'
 
@@ -93,15 +93,6 @@ describe('suggestNextDay', () => {
   })
   it('repeats an aborted day', () => {
     expect(suggestNextDay(level, [session({ dayId: 'd3', status: 'aborted' })], 'beginner', 0).id).toBe('d3')
-  })
-})
-
-describe('weeksGrid', () => {
-  it('returns 56 cells ending on a sunday', () => {
-    const cells = weeksGrid([], 8, new Date(2026, 9, 12).getTime())
-    expect(cells).toHaveLength(56)
-    expect(cells.at(-1)?.key).toBe('2026-10-18')
-    expect(cells.filter((c) => c.today)).toHaveLength(1)
   })
 })
 

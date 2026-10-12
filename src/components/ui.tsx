@@ -9,12 +9,14 @@ const svg = (d: string) => (
 
 export const Icon = {
   back: svg('M15 18l-6-6 6-6'),
+  forward: svg('M9 6l6 6-6 6'),
   up: svg('M12 19V5M5 12l7-7 7 7'),
   down: svg('M12 5v14M19 12l-7 7-7-7'),
   plus: svg('M12 5v14M5 12h14'),
   minus: svg('M5 12h14'),
   more: svg('M5 12h.01M12 12h.01M19 12h.01'),
   check: svg('M20 6L9 17l-5-5'),
+  close: svg('M18 6L6 18M6 6l12 12'),
 }
 
 type Variant = 'primary' | 'secondary' | 'ghost'

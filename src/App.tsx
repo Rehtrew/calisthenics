@@ -5,6 +5,7 @@ import { Home } from './views/Home'
 import { Setup } from './views/Setup'
 import { Workout } from './views/Workout'
 import { SessionView } from './views/SessionView'
+import { Story } from './views/Story'
 import { History } from './views/History'
 import { Settings } from './views/Settings'
 
@@ -23,7 +24,7 @@ export default function App() {
     case 'workout':
       return <Workout />
     case 'summary':
-      return <SessionView key={route.sessionId} sessionId={route.sessionId} mode="summary" />
+      return <Story key={route.sessionId} sessionId={route.sessionId} />
     case 'session':
       return <SessionView key={route.sessionId} sessionId={route.sessionId} mode="detail" />
     case 'history':

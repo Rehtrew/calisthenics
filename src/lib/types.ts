@@ -91,6 +91,8 @@ export interface Settings {
   restSeconds: number
   skipLegs: boolean
   theme: 'dark' | 'light'
+  /** body weight used for calorie and load estimates */
+  weightKg: number
 }
 
 export interface AppState {

@@ -1,14 +1,13 @@
 import { useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { getLevel, getProgram } from '../data/programs'
-import { byEnded, countThisMonth, estimateMinutes, recentAverage, sessionsForDay, suggestNextDay, weeksGrid } from '../lib/stats'
+import { byEnded, countThisMonth, estimateMinutes, recentAverage, sessionsForDay, suggestNextDay } from '../lib/stats'
 import { cap, fmtTime, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
 import { useSyncStatus } from '../lib/sync'
 import { Button, Icon, IconButton, Stat, TopBar } from '../components/ui'
 import { SessionRow } from '../components/SessionRow'
-
-const WEEKS = 12
+import { StreakCalendar } from '../components/StreakCalendar'
 
 export function Home() {
   const s = useAppState()
@@ -20,7 +19,6 @@ export function Home() {
   const minutes = estimateMinutes(nextExercises, restSeconds)
   const atLevel = s.sessions.filter((x) => x.programId === programId && x.levelIndex === levelIndex && x.status === 'completed').length
   const avg = recentAverage(s.sessions)
-  const cells = weeksGrid(s.sessions, WEEKS)
   const sorted = [...s.sessions].sort(byEnded)
   const last = sorted.at(-1)
   const recent = sorted.slice(-4).reverse()
@@ -91,12 +89,7 @@ export function Home() {
       </section>
 
       <section className="section">
-        <p className="eyebrow">Sidste {WEEKS} uger</p>
-        <div className="grid" aria-label={`Træningsdage de sidste ${WEEKS} uger`}>
-          {cells.map((c) => (
-            <span key={c.key} className={`cell ${c.trained ? 'on' : ''} ${c.future ? 'future' : ''} ${c.today ? 'today' : ''}`} title={c.key} />
-          ))}
-        </div>
+        <StreakCalendar sessions={s.sessions} />
       </section>
 
       <section className="section">

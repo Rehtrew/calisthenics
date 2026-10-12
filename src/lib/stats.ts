@@ -1,6 +1,5 @@
 import type { Exercise, ExerciseLog, Level, ProgramDay, ProgramId, Session, SetLog } from './types'
 import { parseReps } from './reps'
-import { dayKey } from './format'
 
 export function setRatio(log: SetLog): number {
   if (log.full) return 1
@@ -56,10 +55,6 @@ export function lastSetResult(session: Session | undefined, exerciseName: string
   return session?.exercises.find((e) => e.name === exerciseName)?.logs[setIndex]
 }
 
-export function trainedDays(sessions: Session[]): Set<string> {
-  return new Set(sessions.map((s) => dayKey(s.startedAt)))
-}
-
 export function countThisMonth(sessions: Session[], now = Date.now()): number {
   const d = new Date(now)
   return sessions.filter((s) => {
@@ -75,30 +70,6 @@ export function recentAverage(sessions: Session[], n = 5): number | null {
     .slice(-n)
   if (!last.length) return null
   return Math.round(last.reduce((sum, s) => sum + sessionScore(s).pct, 0) / last.length)
-}
-
-export interface GridCell {
-  key: string
-  trained: boolean
-  future: boolean
-  today: boolean
-}
-
-export function weeksGrid(sessions: Session[], weeks = 8, now = Date.now()): GridCell[] {
-  const trained = trainedDays(sessions)
-  const today = new Date(now)
-  today.setHours(0, 0, 0, 0)
-  const dow = (today.getDay() + 6) % 7
-  const start = new Date(today)
-  start.setDate(today.getDate() - dow - (weeks - 1) * 7)
-  const cells: GridCell[] = []
-  for (let i = 0; i < weeks * 7; i++) {
-    const d = new Date(start)
-    d.setDate(start.getDate() + i)
-    const key = dayKey(d.getTime())
-    cells.push({ key, trained: trained.has(key), future: d > today, today: d.getTime() === today.getTime() })
-  }
-  return cells
 }
 
 export function suggestNextDay(level: Level, sessions: Session[], programId: ProgramId, levelIndex: number): ProgramDay {

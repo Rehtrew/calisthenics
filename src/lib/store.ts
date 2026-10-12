@@ -10,6 +10,7 @@ const defaultSettings: Settings = {
   restSeconds: 120,
   skipLegs: false,
   theme: 'dark',
+  weightKg: 106,
 }
 
 const defaultState: AppState = { version: 1, settings: defaultSettings, sessions: [], active: null, updatedAt: 0, deleted: [] }
