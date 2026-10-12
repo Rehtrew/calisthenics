@@ -54,11 +54,7 @@ export function Home() {
   return (
     <div className="page">
       <TopBar
-        left={
-          <button className="link" onClick={() => navigate({ name: 'program' })}>
-            {level.name} af {LEVEL_COUNT} →
-          </button>
-        }
+        left={<span className="greeting">God træning{s.settings.name ? `, ${s.settings.name}` : ''}!</span>}
         right={
           <IconButton label="Indstillinger" className="plain" onClick={() => navigate({ name: 'settings' })}>
             {Icon.menu}
@@ -74,6 +70,9 @@ export function Home() {
       )}
 
       <section className="hero">
+        <button className="display level-title" onClick={() => navigate({ name: 'program' })} aria-label={`${level.name} af ${LEVEL_COUNT}, se hele programmet`}>
+          {level.name}
+        </button>
         <h1 className="display day-title swap" key={selected.id}>
           {selected.label}
         </h1>

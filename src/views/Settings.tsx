@@ -63,6 +63,21 @@ export function Settings() {
       <section className="card">
         <div className="field">
           <div>
+            <p className="field-label">Navn</p>
+            <p className="field-hint">Til hilsenen på forsiden</p>
+          </div>
+          <input
+            className="input input-inline"
+            type="text"
+            autoComplete="given-name"
+            aria-label="Navn"
+            placeholder="Dit navn"
+            value={s.settings.name}
+            onChange={(e) => updateSettings({ name: e.target.value })}
+          />
+        </div>
+        <div className="field">
+          <div>
             <p className="field-label">Vægt</p>
             <p className="field-hint">Bruges til kalorier og løftet vægt</p>
           </div>

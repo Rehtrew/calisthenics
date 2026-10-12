@@ -10,6 +10,7 @@ const defaultSettings: Settings = {
   skipLegs: true,
   theme: 'dark',
   weightKg: 106,
+  name: '',
 }
 
 const defaultState: AppState = { version: 1, settings: defaultSettings, sessions: [], active: null, updatedAt: 0, deleted: [] }

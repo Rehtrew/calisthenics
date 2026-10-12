@@ -85,6 +85,8 @@ export interface Settings {
   theme: 'dark' | 'light'
   /** body weight used for calorie and load estimates */
   weightKg: number
+  /** first name for the greeting; empty means no name */
+  name: string
 }
 
 export interface AppState {
