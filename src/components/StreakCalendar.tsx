@@ -52,7 +52,7 @@ export function StreakCalendar({ sessions }: { sessions: Session[] }) {
         </div>
       </div>
 
-      <div className="cal-grid" role="grid" aria-label="Træningskalender">
+      <div className="cal-grid swap" role="grid" aria-label="Træningskalender" key={`${month.getFullYear()}-${month.getMonth()}`}>
         {DOW.map((d, i) => (
           <span key={i} className="cal-dow">
             {d}

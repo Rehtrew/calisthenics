@@ -1,3 +1,4 @@
+import { useState, type CSSProperties } from 'react'
 import { useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { getLevel, getProgram } from '../data/programs'
@@ -15,8 +16,11 @@ export function Home() {
   const program = getProgram(programId)
   const level = getLevel(programId, levelIndex)
   const next = suggestNextDay(level, s.sessions, programId, levelIndex)
-  const nextExercises = next.exercises.filter((e) => !(skipLegs && isLegs(e.name)))
-  const minutes = estimateMinutes(nextExercises, restSeconds)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const selected = level.days.find((d) => d.id === selectedId) ?? next
+  const isNext = selected.id === next.id
+  const exercises = selected.exercises.filter((e) => !(skipLegs && isLegs(e.name)))
+  const minutes = estimateMinutes(exercises, restSeconds)
   const atLevel = s.sessions.filter((x) => x.programId === programId && x.levelIndex === levelIndex && x.status === 'completed').length
   const avg = recentAverage(s.sessions)
   const sorted = [...s.sessions].sort(byEnded)
@@ -35,9 +39,9 @@ export function Home() {
     <div className="page">
       <TopBar
         left={
-          <span className="eyebrow">
-            {program.name} · {level.name}
-          </span>
+          <button className="link" onClick={() => navigate({ name: 'program' })}>
+            {program.name} · {level.name} →
+          </button>
         }
         right={
           <IconButton label="Indstillinger" className="plain" onClick={() => navigate({ name: 'settings' })}>
@@ -54,10 +58,15 @@ export function Home() {
       )}
 
       <section className="hero">
-        <p className="eyebrow">Næste træning</p>
-        <h1 className="display">{next.label}</h1>
+        <p className="eyebrow">{isNext ? 'Næste træning' : 'Valgt træning'}</p>
+        <h1 className="display swap" key={selected.id}>
+          {selected.label}
+        </h1>
         <p className="muted">
-          {nextExercises.length} øvelser · ca. {minutes} min{next.focus ? ` · ${next.focus}` : ''}
+          {exercises.length} øvelser · ca. {minutes} min{selected.focus ? ` · ${selected.focus}` : ''} ·{' '}
+          <button className="link inline" onClick={() => navigate({ name: 'day', programId, levelIndex, dayId: selected.id })}>
+            Se øvelser →
+          </button>
         </p>
         {last && (
           <p className="muted last-trained">
@@ -67,18 +76,28 @@ export function Home() {
             {last.status === 'aborted' ? ' · afbrudt' : ''}
           </p>
         )}
-        <div className="day-chips" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-          {level.days.map((d) => {
+        <div className="day-chips" role="radiogroup" aria-label="Vælg dag" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+          {level.days.map((d, i) => {
             const lastForDay = sessionsForDay(s.sessions, programId, levelIndex, d.id).at(-1)
             return (
-              <button key={d.id} className={`chip ${d.id === next.id ? 'active' : ''}`} onClick={() => navigate({ name: 'setup', dayId: d.id })}>
-                {d.label}
+              <button
+                key={d.id}
+                role="radio"
+                aria-checked={d.id === selected.id}
+                className={`chip stagger ${d.id === selected.id ? 'active' : ''}`}
+                style={{ '--i': i } as CSSProperties}
+                onClick={() => setSelectedId(d.id)}
+              >
+                <span>
+                  {d.id === next.id && <i className="dot" aria-label="Foreslået" />}
+                  {d.label}
+                </span>
                 <small>{lastForDay ? cap(relativeDay(lastForDay.endedAt)) : 'Ikke trænet'}</small>
               </button>
             )
           })}
         </div>
-        <Button onClick={() => navigate({ name: 'setup', dayId: next.id })}>Start {next.label}</Button>
+        <Button onClick={() => navigate({ name: 'setup', dayId: selected.id })}>Start {selected.label}</Button>
       </section>
 
       <section className="stats">
@@ -102,8 +121,8 @@ export function Home() {
           )}
         </div>
         {recent.length === 0 && <p className="muted">Ingen træninger endnu. Start med {next.label}.</p>}
-        {recent.map((sess) => (
-          <SessionRow key={sess.id} session={sess} />
+        {recent.map((sess, i) => (
+          <SessionRow key={sess.id} session={sess} index={i} />
         ))}
       </section>
 

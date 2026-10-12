@@ -8,6 +8,8 @@ import { SessionView } from './views/SessionView'
 import { Story } from './views/Story'
 import { History } from './views/History'
 import { Settings } from './views/Settings'
+import { DayPreview } from './views/DayPreview'
+import { ProgramOverview } from './views/ProgramOverview'
 
 export default function App() {
   const route = useRoute()
@@ -21,6 +23,10 @@ export default function App() {
   switch (route.name) {
     case 'setup':
       return <Setup key={route.dayId} dayId={route.dayId} />
+    case 'day':
+      return <DayPreview key={`${route.programId}-${route.levelIndex}-${route.dayId}`} programId={route.programId} levelIndex={route.levelIndex} dayId={route.dayId} />
+    case 'program':
+      return <ProgramOverview />
     case 'workout':
       return <Workout />
     case 'summary':

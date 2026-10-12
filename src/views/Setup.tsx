@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { startWorkout, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { getDay, getLevel, getProgram } from '../data/programs'
@@ -87,7 +87,7 @@ export function Setup({ dayId }: { dayId: string }) {
           {ordered.map((e, pos) => {
             const skipped = skipLegs && isLegs(e.name)
             return (
-              <li key={order[pos]} className={`exercise ${skipped ? 'skipped' : ''}`}>
+              <li key={order[pos]} className={`exercise stagger ${skipped ? 'skipped' : ''}`} style={{ '--i': pos } as CSSProperties}>
                 <span className="exercise-main">
                   <span className="exercise-name">{e.name}</span>
                   <span className="exercise-sub">

@@ -18,6 +18,9 @@
   --on-accent: #0b0b0b;
   --positive: #27c966;
   --radius: 22px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   color-scheme: dark;
 }
 
@@ -76,6 +79,11 @@ ul {
   list-style: none;
 }
 
+.page,
+.screen {
+  animation: page-in 180ms var(--ease-out);
+}
+
 .page {
   max-width: 540px;
   margin: 0 auto;
@@ -108,8 +116,13 @@ ul {
   height: 20px;
 }
 
+.icon-btn {
+  transition: transform 160ms var(--ease-out), background-color 160ms ease, opacity 160ms ease;
+}
+
 .icon-btn:active:not(:disabled) {
   background: var(--surface-2);
+  transform: scale(0.92);
 }
 
 .icon-btn.plain {
@@ -126,15 +139,24 @@ ul {
 .icon-btn.plain:active:not(:disabled) {
   background: none;
   opacity: 0.6;
+  transform: scale(0.92);
 }
 
 .link {
   color: var(--muted);
   padding: 8px 0;
+  transition: color 160ms ease, opacity 120ms ease;
 }
 
 .link:active {
   color: var(--text);
+}
+
+.link.inline {
+  display: inline;
+  padding: 0;
+  color: var(--text);
+  font-size: inherit;
 }
 
 .eyebrow {
@@ -193,12 +215,19 @@ ul {
   justify-content: center;
   gap: 8px;
   padding: 0 24px;
-  transition: transform 0.08s ease;
+  transition: transform 160ms var(--ease-out), background-color 160ms ease, opacity 160ms ease, filter 160ms ease;
 }
 
 .btn:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
+
+.btn-auto {
+  width: auto;
+  flex: none;
+  padding: 0 22px;
+}
+
 
 .btn-primary {
   background: var(--accent);
@@ -272,8 +301,12 @@ ul {
   height: 32px;
   border-radius: 999px;
   background: var(--surface-2);
-  transition: background 0.15s;
+  transition: background-color 180ms ease, transform 160ms var(--ease-out);
   flex: none;
+}
+
+.toggle:active {
+  transform: scale(0.96);
 }
 
 .toggle::after {
@@ -285,7 +318,7 @@ ul {
   height: 26px;
   border-radius: 50%;
   background: #fff;
-  transition: transform 0.15s;
+  transition: transform 220ms var(--ease-out);
 }
 
 .toggle[aria-checked='true'] {
@@ -318,23 +351,38 @@ ul {
 }
 
 .segmented {
+  position: relative;
   display: flex;
   background: var(--surface-2);
   border-radius: 999px;
   padding: 3px;
 }
 
+.segmented-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / var(--count, 2));
+  border-radius: 999px;
+  background: var(--text);
+  transform: translateX(calc(var(--index, 0) * 100%));
+  transition: transform 220ms var(--ease-out);
+}
+
 .segmented button {
+  position: relative;
+  z-index: 1;
   flex: 1;
   height: 38px;
   padding: 0 16px;
   border-radius: 999px;
   color: var(--muted);
   white-space: nowrap;
+  transition: color 160ms ease;
 }
 
 .segmented button.active {
-  background: var(--text);
   color: var(--bg);
 }
 
@@ -363,6 +411,21 @@ ul {
   background: var(--surface);
   min-width: 0;
   text-align: left;
+  transition: transform 160ms var(--ease-out), background-color 160ms ease, color 160ms ease;
+}
+
+.chip:active {
+  transform: scale(0.97);
+}
+
+.chip .dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 7px;
+  vertical-align: 2px;
 }
 
 .chip small {
@@ -612,6 +675,11 @@ ul {
   padding: 16px 0;
   border-bottom: 1px solid var(--border);
   text-align: left;
+  transition: opacity 120ms ease;
+}
+
+.row:active {
+  opacity: 0.55;
 }
 
 .row-main {
@@ -634,6 +702,11 @@ ul {
   font-size: 22px;
   font-weight: 500;
   flex: none;
+}
+
+.row-value.small {
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .month-head {
@@ -672,6 +745,12 @@ ul {
 .exercise-actions {
   display: flex;
   gap: 6px;
+  flex: none;
+}
+
+.exercise-index {
+  color: var(--muted);
+  font-size: 14px;
   flex: none;
 }
 
@@ -752,7 +831,7 @@ ul {
   display: block;
   height: 100%;
   background: var(--accent);
-  transition: width 0.3s ease;
+  transition: width 320ms var(--ease-in-out);
 }
 
 .exercise-title {
@@ -891,14 +970,30 @@ ul {
 }
 
 .story-bars span {
+  position: relative;
   flex: 1;
   height: 3px;
   border-radius: 2px;
   background: var(--surface-2);
+  overflow: hidden;
 }
 
-.story-bars span.on {
+.story-bars span::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   background: var(--text);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 280ms var(--ease-out);
+}
+
+.story-bars span.on::after {
+  transform: scaleX(1);
+}
+
+.story-copy {
+  animation: fade-up 260ms var(--ease-out) 60ms backwards;
 }
 
 .story-head {
@@ -921,7 +1016,7 @@ ul {
   font-size: clamp(88px, 28vw, 150px);
   font-weight: 500;
   line-height: 0.95;
-  animation: story-in 0.35s ease-out;
+  animation: swap-in 240ms var(--ease-out);
 }
 
 .story-unit {
@@ -971,16 +1066,6 @@ ul {
   padding: 0 18px;
 }
 
-@keyframes story-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
 
 /* sheet */
 .sheet-backdrop {
@@ -1002,6 +1087,24 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+@starting-style {
+  .sheet-backdrop {
+    opacity: 0;
+  }
+
+  .sheet {
+    transform: translateY(100%);
+  }
+}
+
+.sheet-backdrop {
+  transition: opacity 200ms ease;
+}
+
+.sheet {
+  transition: transform 300ms var(--ease-drawer);
 }
 
 .sheet h2 {
@@ -1082,7 +1185,7 @@ ul {
 }
 
 /* pointer devices */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .btn-primary:hover:not(:disabled) {
     filter: brightness(1.1);
   }
@@ -1209,5 +1312,68 @@ ul {
   .sheet {
     border-radius: 28px;
     padding-bottom: 24px;
+    transition: transform 200ms var(--ease-out), opacity 200ms var(--ease-out);
+  }
+
+  @starting-style {
+    .sheet {
+      transform: scale(0.97);
+      opacity: 0;
+    }
+  }
+}
+
+/* motion utilities */
+.stagger {
+  animation: fade-up 260ms var(--ease-out) backwards;
+  animation-delay: calc(min(var(--i, 0), 10) * 35ms);
+}
+
+.swap {
+  animation: swap-in 200ms var(--ease-out);
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes swap-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react'
 import { back } from '../lib/router'
 
 const svg = (d: string) => (
@@ -118,8 +118,13 @@ export function Segmented<T extends string>({
   options: { value: T; label: string }[]
   onChange: (v: T) => void
 }) {
+  const index = Math.max(
+    0,
+    options.findIndex((o) => o.value === value),
+  )
   return (
-    <div className="segmented" role="radiogroup">
+    <div className="segmented" role="radiogroup" style={{ '--count': options.length, '--index': index } as CSSProperties}>
+      <span className="segmented-thumb" aria-hidden="true" />
       {options.map((o) => (
         <button key={o.value} role="radio" aria-checked={o.value === value} className={o.value === value ? 'active' : ''} onClick={() => onChange(o.value)}>
           {o.label}

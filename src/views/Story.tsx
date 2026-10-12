@@ -55,7 +55,7 @@ export function Story({ sessionId }: { sessionId: string }) {
           {slide.value}
           <span className="story-unit">{slide.unit}</span>
         </div>
-        <div>
+        <div className="story-copy" key={`copy-${index}`}>
           <p className="story-text">{slide.text}</p>
           {slide.sub && <p className={`story-sub ${slide.positive ? 'positive' : ''}`}>{slide.sub}</p>}
         </div>

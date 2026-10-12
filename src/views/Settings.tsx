@@ -95,6 +95,14 @@ export function Settings() {
         </div>
       </section>
 
+      <button className="row" onClick={() => navigate({ name: 'program' })} style={{ marginBottom: 28 }}>
+        <span className="row-main">
+          <span className="row-title">Se hele programmet</span>
+          <span className="row-sub">Alle levels og dage i Beginner og Intermediate</span>
+        </span>
+        <span className="row-value muted">→</span>
+      </button>
+
       <section className="section">
         <p className="eyebrow">Synkronisering</p>
         <p className="muted small" style={{ margin: '6px 0 16px' }}>

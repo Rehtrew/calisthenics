@@ -129,7 +129,7 @@ function SetPanel({
 
   return (
     <>
-      <div className="screen-main">
+      <div className="screen-main swap">
         <p className="eyebrow">
           Øvelse {a.exerciseIndex + 1} af {a.exercises.length} · sæt {a.setIndex + 1} af {ex.sets}
         </p>
@@ -225,7 +225,7 @@ function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNex
 
   return (
     <>
-      <div className="screen-main">
+      <div className="screen-main swap">
         <p className="eyebrow">Pause</p>
         <div className="target rest-clock">{fmtClock(Math.ceil(remainingMs / 1000))}</div>
         <div className="progress rest-progress">

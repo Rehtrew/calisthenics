@@ -32,8 +32,8 @@ export function History() {
           <p className="eyebrow month-head">
             {g.label} · {g.items.length}
           </p>
-          {g.items.map((sess) => (
-            <SessionRow key={sess.id} session={sess} />
+          {g.items.map((sess, i) => (
+            <SessionRow key={sess.id} session={sess} index={i} />
           ))}
         </section>
       ))}

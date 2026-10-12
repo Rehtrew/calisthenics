@@ -1,9 +1,12 @@
 import { useSyncExternalStore } from 'react'
 import { getState } from './store'
+import type { ProgramId } from './types'
 
 export type Route =
   | { name: 'home' }
   | { name: 'setup'; dayId: string }
+  | { name: 'day'; programId: ProgramId; levelIndex: number; dayId: string }
+  | { name: 'program' }
   | { name: 'workout' }
   | { name: 'summary'; sessionId: string }
   | { name: 'session'; sessionId: string }
