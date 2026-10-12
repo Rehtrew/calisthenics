@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react'
+import { flushSync } from 'react-dom'
 import { getState } from './store'
 import type { ProgramId } from './types'
 
@@ -29,9 +30,9 @@ type ViewTransitionDocument = Document & {
 
 /**
  * Swap the route inside a view transition when the browser supports it, so the
- * old and new screens slide and shared elements (the day title) morph. The
- * update resolves on the next task so React has committed the new screen before
- * the browser snapshots it.
+ * old and new screens slide and shared elements (the day title) morph. React is
+ * flushed synchronously inside the update callback, so the browser snapshots the
+ * new screen rather than a stale copy of the old one.
  */
 function applyRoute(next: Route, direction: Direction) {
   const doc = document as ViewTransitionDocument
@@ -47,9 +48,8 @@ function applyRoute(next: Route, direction: Direction) {
   }
   document.documentElement.dataset.nav = direction
   const transition = doc.startViewTransition(() => {
-    update()
+    flushSync(update)
     window.scrollTo(0, 0)
-    return new Promise<void>((resolve) => setTimeout(resolve, 0))
   })
   void transition.finished.finally(() => {
     delete document.documentElement.dataset.nav
