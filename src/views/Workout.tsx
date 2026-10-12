@@ -7,7 +7,7 @@ import { fmtClock, fmtDuration } from '../lib/format'
 import { beep, buzz, primeAudio, useNow, useWakeLock } from '../lib/device'
 import type { ActiveWorkout, SetLog, SetTarget } from '../lib/types'
 import { Button, Icon, IconButton, Sheet } from '../components/ui'
-import { musclesFor, viewsFor } from '../lib/muscles'
+import { figureView, labelList, musclesFor, viewsFor, MUSCLE_LABEL } from '../lib/muscles'
 import { BodyFigure } from '../components/body/BodyFigure'
 import { ExerciseSheet } from '../components/ExerciseSheet'
 
@@ -57,15 +57,20 @@ export function Workout() {
   return (
     <div className="screen">
       <header className="topbar workout-bar">
-        <div>
-          <span className="eyebrow">
-            {a.dayLabel} · Level {a.levelIndex + 1}
-          </span>
-          <div className="elapsed" aria-label="Tid i gang">
-            {fmtDuration(now - a.startedAt)}
+        <div className="workout-bar-left">
+          <IconButton label="Tilbage til forrige sæt" className="plain back-set" disabled={doneSets === 0} onClick={undoLastSet}>
+            {Icon.back}
+          </IconButton>
+          <div>
+            <span className="eyebrow">
+              {a.dayLabel} · Level {a.levelIndex + 1}
+            </span>
+            <div className="elapsed" aria-label="Tid i gang">
+              {fmtDuration(now - a.startedAt)}
+            </div>
           </div>
         </div>
-        <button className="link" onClick={() => setAbort(true)}>
+        <button className="link eyebrow" onClick={() => setAbort(true)}>
           Afbryd
         </button>
       </header>
@@ -126,7 +131,7 @@ function SetPanel({
 }) {
   const ex = a.exercises[a.exerciseIndex]
   const muscles = musclesFor(ex.name)
-  const view = viewsFor(muscles)[0]
+  const view = figureView(viewsFor(muscles)[0], muscles)
   const [mode, setMode] = useState<'ask' | 'count'>(target.isMax ? 'count' : 'ask')
   const [count, setCount] = useState(() => {
     if (target.isMax) return lastTime?.achieved ?? 0
@@ -160,7 +165,7 @@ function SetPanel({
               </p>
             </div>
             <button className="figure-btn rise" style={{ '--i': 3 } as CSSProperties} onClick={onShowMuscles} aria-label="Vis muskelgrupper">
-              <BodyFigure view={view} primary={muscles.primary} secondary={muscles.secondary} height={150} />
+              <BodyFigure view={view} primary={muscles.primary} secondary={muscles.secondary} height={view.endsWith('Torso') ? 280 : 300} />
             </button>
           </div>
         ) : (
@@ -178,9 +183,21 @@ function SetPanel({
             <p className="target-unit center">{unitLabel(target.unit)}</p>
           </>
         )}
+        <ul className="tags rise" style={{ '--i': 4 } as CSSProperties} aria-label={`Muskler: ${labelList(muscles.primary)}`}>
+          {muscles.primary.map((m) => (
+            <li key={m} className="tag">
+              {MUSCLE_LABEL[m]}
+            </li>
+          ))}
+          {muscles.secondary.map((m) => (
+            <li key={m} className="tag secondary">
+              {MUSCLE_LABEL[m]}
+            </li>
+          ))}
+        </ul>
         {lastHint && <p className="last-hint">{lastHint}</p>}
 
-        <p className="next rise" style={{ '--i': 4 } as CSSProperties}>
+        <p className="next rise" style={{ '--i': 5 } as CSSProperties}>
           Næste: <strong>{upNext.name}</strong> · {upNext.detail}
         </p>
       </div>
@@ -266,9 +283,6 @@ function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNex
           </Button>
           <Button onClick={finishRest}>Spring over</Button>
         </div>
-        <Button variant="ghost" onClick={undoLastSet}>
-          Fortryd sidste sæt
-        </Button>
       </div>
     </>
   )

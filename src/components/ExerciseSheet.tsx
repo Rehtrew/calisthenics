@@ -1,8 +1,8 @@
-import { labelList, musclesFor, viewsFor } from '../lib/muscles'
+import { figureView, labelList, musclesFor, viewsFor } from '../lib/muscles'
 import { BodyFigure } from './body/BodyFigure'
 import { Button, Sheet } from './ui'
 
-const VIEW_LABEL = { front: 'Forfra', side: 'Fra siden', back: 'Bagfra' } as const
+const VIEW_LABEL = { front: 'Forfra', side: 'Fra siden', back: 'Bagfra', frontTorso: 'Forfra', backTorso: 'Bagfra' } as const
 
 /** Which muscles an exercise trains, drawn on the body from the angle(s) that show them. */
 export function ExerciseSheet({ name, detail, onClose }: { name: string; detail?: string; onClose: () => void }) {
@@ -11,12 +11,15 @@ export function ExerciseSheet({ name, detail, onClose }: { name: string; detail?
   return (
     <Sheet title={name} text={detail}>
       <div className="figures">
-        {views.map((v) => (
-          <figure key={v} className="figure">
-            <BodyFigure view={v} primary={map.primary} secondary={map.secondary} height={240} />
-            <figcaption className="muted small">{VIEW_LABEL[v]}</figcaption>
-          </figure>
-        ))}
+        {views.map((v) => {
+          const fv = figureView(v, map)
+          return (
+            <figure key={v} className="figure">
+              <BodyFigure view={fv} primary={map.primary} secondary={map.secondary} height={views.length > 1 ? 230 : 280} />
+              <figcaption className="muted small">{VIEW_LABEL[fv]}</figcaption>
+            </figure>
+          )
+        })}
       </div>
       <dl className="muscle-list">
         <div>

@@ -18,17 +18,18 @@ export type Muscle =
   | 'hamstrings'
   | 'calves'
 
+/** Everyday names, not anatomy class. */
 export const MUSCLE_LABEL: Record<Muscle, string> = {
   chest: 'Bryst',
   shoulders: 'Skuldre',
-  traps: 'Trapezius',
+  traps: 'Nakke',
   biceps: 'Biceps',
   triceps: 'Triceps',
   forearms: 'Underarme',
   abs: 'Mave',
-  obliques: 'Skrå mavemuskler',
-  serratus: 'Serratus',
-  lats: 'Lats',
+  obliques: 'Sidemave',
+  serratus: 'Ribben',
+  lats: 'Ryg',
   upper_back: 'Øvre ryg',
   lower_back: 'Lænd',
   glutes: 'Baller',
@@ -128,13 +129,27 @@ export function musclesFor(name: string): MuscleMap {
  * sliver of lats and the back a sliver of obliques; they still light up but
  * do not decide which view is chosen.
  */
+const FRONT_STRONG = new Set<Muscle>(['chest', 'shoulders', 'traps', 'biceps', 'triceps', 'forearms', 'abs', 'obliques', 'serratus', 'quads', 'calves'])
+const BACK_STRONG = new Set<Muscle>(['lats', 'upper_back', 'lower_back', 'traps', 'shoulders', 'triceps', 'forearms', 'glutes', 'hamstrings', 'calves'])
+
 const STRONG: Record<BodyView, Set<Muscle>> = {
-  front: new Set(['chest', 'shoulders', 'traps', 'biceps', 'triceps', 'forearms', 'abs', 'obliques', 'serratus', 'quads', 'calves']),
-  back: new Set(['lats', 'upper_back', 'lower_back', 'traps', 'shoulders', 'triceps', 'forearms', 'glutes', 'hamstrings', 'calves']),
+  front: FRONT_STRONG,
+  back: BACK_STRONG,
   side: viewMuscles.side,
+  frontTorso: FRONT_STRONG,
+  backTorso: BACK_STRONG,
 }
 
 const LEGS = new Set<Muscle>(['quads', 'glutes', 'hamstrings', 'calves'])
+
+/** Upper-body work is drawn on the cropped torso so the muscles are larger. */
+export function figureView(view: BodyView, map: MuscleMap): BodyView {
+  const legs = [...map.primary, ...map.secondary].some((m) => LEGS.has(m))
+  if (legs) return view
+  if (view === 'front') return 'frontTorso'
+  if (view === 'back') return 'backTorso'
+  return view
+}
 
 function viewScore(v: BodyView, map: MuscleMap): number {
   const strong = STRONG[v]

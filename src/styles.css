@@ -1260,9 +1260,40 @@ ul {
 
 .target-row {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+}
+
+.workout-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: -12px;
+}
+
+.back-set:disabled {
+  opacity: 0.25;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 18px;
+  max-width: 60%;
+}
+
+.tag {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.tag.secondary {
+  opacity: 0.55;
 }
 
 .figure-btn {

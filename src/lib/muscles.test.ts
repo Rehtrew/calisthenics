@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { musclesFor, viewsFor } from './muscles'
+import { figureView, musclesFor, viewsFor } from './muscles'
 import { levels } from '../data/programs'
 
 describe('musclesFor', () => {
@@ -40,5 +40,14 @@ describe('viewsFor', () => {
     expect(viewsFor(musclesFor('Chin ups'))).toEqual(['front', 'back'])
     expect(viewsFor(musclesFor('Hiptrusts'))).toEqual(['back'])
     expect(viewsFor(musclesFor('Dips'))).toEqual(['front'])
+  })
+})
+
+describe('figureView', () => {
+  it('uses the torso for upper-body work and the full body when legs are involved', () => {
+    expect(figureView('front', musclesFor('Push ups'))).toBe('frontTorso')
+    expect(figureView('back', musclesFor('Pull ups'))).toBe('backTorso')
+    expect(figureView('front', musclesFor('Mountain climbers'))).toBe('front')
+    expect(figureView('side', musclesFor('Squats'))).toBe('side')
   })
 })
