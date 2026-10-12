@@ -90,3 +90,11 @@ export function estimateMinutes(exercises: Pick<Exercise, 'reps' | 'sets'>[], re
   }
   return Math.max(5, Math.round(seconds / 60 / 5) * 5)
 }
+
+/** Weights logged after workouts, oldest first. */
+export function weightLog(sessions: Session[]): { sessionId: string; at: number; kg: number }[] {
+  return sessions
+    .filter((s): s is Session & { weightKg: number } => typeof s.weightKg === 'number')
+    .sort(byEnded)
+    .map((s) => ({ sessionId: s.id, at: s.endedAt, kg: s.weightKg }))
+}

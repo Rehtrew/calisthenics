@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { fingerprint, mergeStates } from './merge'
+import { weightLog } from './stats'
+import { fmtKg, parseKg } from './format'
 import type { AppState, Session } from './types'
 
 const session = (id: string, endedAt: number): Session => ({
@@ -53,5 +55,18 @@ describe('mergeStates', () => {
     const a = base({ sessions: [session('a', 1), session('b', 2)] })
     const b = base({ sessions: [session('b', 2), session('a', 1)] })
     expect(fingerprint(a)).toBe(fingerprint(b))
+  })
+})
+
+describe('weight log', () => {
+  it('lists logged weights oldest first and formats them', () => {
+    const a = { ...session('a', 1), weightKg: 106.2 }
+    const b = session('b', 2)
+    const c = { ...session('c', 3), weightKg: 105.8 }
+    expect(weightLog([c, b, a]).map((w) => w.kg)).toEqual([106.2, 105.8])
+    expect(fmtKg(105.84)).toBe('105,8')
+    expect(parseKg('106,2')).toBe(106.2)
+    expect(parseKg('abc')).toBeNull()
+    expect(parseKg('5')).toBeNull()
   })
 })

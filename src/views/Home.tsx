@@ -2,8 +2,8 @@ import { useState, type CSSProperties } from 'react'
 import { useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { getLevel, getProgram } from '../data/programs'
-import { byEnded, countThisMonth, estimateMinutes, recentAverage, sessionsForDay, suggestNextDay } from '../lib/stats'
-import { cap, fmtTime, relativeDay } from '../lib/format'
+import { byEnded, countThisMonth, estimateMinutes, recentAverage, sessionsForDay, suggestNextDay, weightLog } from '../lib/stats'
+import { cap, fmtKg, fmtTime, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
 import { useSyncStatus } from '../lib/sync'
 import { Button, Icon, IconButton, Stat, TopBar } from '../components/ui'
@@ -33,6 +33,10 @@ export function Home() {
   const sorted = [...s.sessions].sort(byEnded)
   const last = sorted.at(-1)
   const recent = sorted.slice(-4).reverse()
+  const weights = weightLog(s.sessions)
+  const latestWeight = weights.at(-1)
+  const previousWeight = weights.at(-2)
+  const weightDelta = latestWeight && previousWeight ? Math.round((latestWeight.kg - previousWeight.kg) * 10) / 10 : null
   const cols = level.days.length === 4 ? 2 : Math.min(3, level.days.length)
   const rows = Math.ceil(level.days.length / cols)
   const selectedIndex = Math.max(
@@ -87,6 +91,19 @@ export function Home() {
             {relativeDay(last.endedAt)}
             {last.status === 'aborted' ? ' · afbrudt' : ''}
           </p>
+        )}
+        {latestWeight && (
+          <button className="link inline muted last-trained" onClick={() => navigate({ name: 'session', sessionId: latestWeight.sessionId })}>
+            Vægt: <strong>{fmtKg(latestWeight.kg)} kg</strong>
+            {weightDelta != null && (
+              <span className={weightDelta < 0 ? 'positive' : ''}>
+                {' '}
+                · {weightDelta > 0 ? '+' : ''}
+                {fmtKg(weightDelta)} kg siden sidst
+              </span>
+            )}
+            {' '}· {relativeDay(latestWeight.at)}
+          </button>
         )}
         <div
           className="day-chips"

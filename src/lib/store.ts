@@ -207,6 +207,20 @@ export function discardWorkout() {
   commit({ ...state, active: null })
 }
 
+/** Attach (or clear) a body weight on a saved workout; a new weight also drives calorie estimates. */
+export function logWeight(sessionId: string, weightKg: number | null) {
+  const sessions = state.sessions.map((s) => {
+    if (s.id !== sessionId) return s
+    if (weightKg == null) {
+      const { weightKg: _dropped, ...rest } = s
+      return rest
+    }
+    return { ...s, weightKg }
+  })
+  const settings = weightKg == null ? state.settings : { ...state.settings, weightKg: Math.round(weightKg) }
+  commit({ ...state, sessions, settings })
+}
+
 export function deleteSession(id: string) {
   commit({ ...state, sessions: state.sessions.filter((s) => s.id !== id), deleted: [...new Set([...state.deleted, id])] })
 }

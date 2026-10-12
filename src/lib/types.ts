@@ -68,6 +68,8 @@ export interface Session {
   restSeconds: number
   skipLegs: boolean
   exercises: ExerciseLog[]
+  /** body weight logged after this workout, one decimal */
+  weightKg?: number
 }
 
 export interface ActiveWorkout {

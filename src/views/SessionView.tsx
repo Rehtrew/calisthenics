@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
-import { deleteSession, useAppState } from '../lib/store'
+import { deleteSession, logWeight, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
-import { exerciseScore, previousSession, sessionScore } from '../lib/stats'
-import { fmtDateLong, fmtDuration, fmtTime } from '../lib/format'
+import { exerciseScore, previousSession, sessionScore, weightLog } from '../lib/stats'
+import { fmtDateLong, fmtDuration, fmtKg, fmtTime } from '../lib/format'
 import { energy } from '../lib/energy'
 import type { ExerciseLog } from '../lib/types'
 import { BackButton, Button, Sheet, Stat, TopBar } from '../components/ui'
+import { WeightPicker } from '../components/WeightPicker'
 
 export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'summary' | 'detail' }) {
   const s = useAppState()
   const session = s.sessions.find((x) => x.id === sessionId)
   const [confirm, setConfirm] = useState(false)
+  const [editWeight, setEditWeight] = useState(false)
+  const [draftWeight, setDraftWeight] = useState<number | null>(null)
 
   useEffect(() => {
     if (!session) navigate({ name: 'home' }, { replace: true })
@@ -21,7 +24,13 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
   const prev = previousSession(s.sessions, session)
   const prevScore = prev ? sessionScore(prev) : null
   const completed = session.status === 'completed'
-  const kcal = energy(session, s.settings.weightKg).kcal
+  const kcal = energy(session, session.weightKg ?? s.settings.weightKg).kcal
+  const earlierWeight = weightLog(s.sessions.filter((x) => x.id !== session.id && x.endedAt <= session.endedAt)).at(-1)
+  const weightDelta = session.weightKg != null && earlierWeight ? Math.round((session.weightKg - earlierWeight.kg) * 10) / 10 : null
+  const openWeight = () => {
+    setDraftWeight(session.weightKg ?? earlierWeight?.kg ?? s.settings.weightKg)
+    setEditWeight(true)
+  }
 
   let compare: string
   let compareClass = 'muted'
@@ -69,6 +78,20 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
 
       <p className={`compare ${compareClass}`}>{compare}</p>
 
+      <button className="row" onClick={openWeight}>
+        <span className="row-main">
+          <span className="row-title">Vægt efter træning</span>
+          <span className="row-sub">
+            {session.weightKg != null
+              ? weightDelta != null
+                ? `${weightDelta > 0 ? '+' : ''}${fmtKg(weightDelta)} kg siden ${fmtKg(earlierWeight!.kg)} kg`
+                : 'Første loggede vægt'
+              : 'Ikke logget · tryk for at logge'}
+          </span>
+        </span>
+        <span className="row-value">{session.weightKg != null ? `${fmtKg(session.weightKg)} kg` : <span className="muted">Log</span>}</span>
+      </button>
+
       <section className="section">
         <p className="eyebrow">Øvelser</p>
         <ul className="result-list">
@@ -82,6 +105,34 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
         <div className="cta-bar">
           <Button onClick={() => navigate({ name: 'home' }, { replace: true })}>Til forsiden</Button>
         </div>
+      )}
+
+      {editWeight && draftWeight != null && (
+        <Sheet title={session.weightKg != null ? 'Ret vægt' : 'Log vægt'} text={`Vægt efter ${session.dayLabel} · ${fmtDateLong(session.endedAt)}`}>
+          <WeightPicker value={draftWeight} onChange={setDraftWeight} />
+          <Button
+            onClick={() => {
+              logWeight(session.id, draftWeight)
+              setEditWeight(false)
+            }}
+          >
+            Gem {fmtKg(draftWeight)} kg
+          </Button>
+          {session.weightKg != null && (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                logWeight(session.id, null)
+                setEditWeight(false)
+              }}
+            >
+              Fjern vægten
+            </Button>
+          )}
+          <Button variant="secondary" onClick={() => setEditWeight(false)}>
+            Annuller
+          </Button>
+        </Sheet>
       )}
 
       {confirm && (
