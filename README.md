@@ -1,12 +1,12 @@
-# cali
+# Cali
 
-Digital udgave af Caliathletics-programmet (beginner og intermediate, level 1–8) som en lille web-app.
+Digital udgave af Caliathletics-programmet (Beginner og Intermediate, level 1 til 8) som en lille web-app.
 
 - Vælg dag, spring ben over, sæt pause mellem sæt og byt om på rækkefølgen inden du starter.
-- Under træningen: aktuel øvelse, sæt-tæller, mål, næste øvelse, pausetimer med lyd og vibration.
+- Under træningen: aktuel øvelse, sæt-tæller, mål, næste øvelse, forløbet tid og pausetimer med lyd og vibration.
 - Log om du nåede alle reps eller færre. Afbryd når som helst.
 - Opsummering efter hver træning og et dashboard med historik og progression.
-- Data gemmes i browserens localStorage. Backup via eksport/import under indstillinger.
+- Data gemmes i browseren og, når online backup er slået til, også på serveren, så telefon og computer deler historik.
 
 ## Kør lokalt
 
@@ -14,6 +14,8 @@ Digital udgave af Caliathletics-programmet (beginner og intermediate, level 1–
 npm install
 npm run dev
 ```
+
+I udvikling svarer en indbygget udgave af `/api/state` fra hukommelsen med sync-koden `dev`.
 
 ## Byg og test
 
@@ -24,4 +26,17 @@ npm test
 
 ## Deploy til Vercel
 
-Importér repoet i Vercel. Det er et rent Vite-projekt, så Vercel finder selv `npm run build` og `dist/`.
+Importér repoet i Vercel. Det er et Vite-projekt med en serverless-funktion i `api/`, så Vercel finder selv build og output.
+
+## Online backup (sync mellem enheder)
+
+Appen gemmer hele sin tilstand som ét JSON-dokument via `api/state.ts`. Det kræver en Redis-database og en hemmelig kode:
+
+1. I Vercel: åbn projektet, fanen **Storage**, vælg **Upstash Redis** (gratis plan), opret og tilslut til projektet.
+   Det giver miljøvariablerne `KV_REST_API_URL` og `KV_REST_API_TOKEN`.
+2. I Vercel: **Settings → Environment Variables**, tilføj `APP_SECRET` med en kode, du selv vælger (mindst 6 tegn).
+3. Redeploy projektet.
+4. I appen: **Indstillinger → Online backup**, skriv den samme kode og tryk Gem. Gør det samme på de andre enheder.
+
+Synkronisering sker automatisk efter hver ændring, når appen åbnes, og når den får net igen. Træninger flettes på tværs
+af enheder; for indstillinger og en igangværende træning vinder den enhed, der sidst ændrede noget.

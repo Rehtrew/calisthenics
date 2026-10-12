@@ -2,8 +2,9 @@ import { useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { getLevel, getProgram } from '../data/programs'
 import { byEnded, countThisMonth, estimateMinutes, recentAverage, sessionsForDay, suggestNextDay, weeksGrid } from '../lib/stats'
-import { cap, relativeDay } from '../lib/format'
+import { cap, fmtTime, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
+import { useSyncStatus } from '../lib/sync'
 import { Button, Icon, IconButton, Stat, TopBar } from '../components/ui'
 import { SessionRow } from '../components/SessionRow'
 
@@ -24,6 +25,13 @@ export function Home() {
   const last = sorted.at(-1)
   const recent = sorted.slice(-4).reverse()
   const cols = level.days.length === 4 ? 2 : Math.min(3, level.days.length)
+  const sync = useSyncStatus()
+  const syncLine =
+    sync.state === 'off'
+      ? 'Online backup er ikke slået til'
+      : sync.state === 'idle' && sync.lastSyncedAt
+        ? `Online backup synkroniseret kl. ${fmtTime(sync.lastSyncedAt)}`
+        : `Online backup: ${sync.message.toLowerCase()}`
 
   return (
     <div className="page">
@@ -105,6 +113,10 @@ export function Home() {
           <SessionRow key={sess.id} session={sess} />
         ))}
       </section>
+
+      <button className={`link small sync-line ${sync.state === 'error' ? 'accent' : ''}`} onClick={() => navigate({ name: 'settings' })}>
+        {syncLine} →
+      </button>
     </div>
   )
 }

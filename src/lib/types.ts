@@ -98,4 +98,8 @@ export interface AppState {
   settings: Settings
   sessions: Session[]
   active: ActiveWorkout | null
+  /** ms timestamp of the last local change, used to pick a winner when syncing */
+  updatedAt: number
+  /** ids of deleted sessions, kept so a sync from another device does not bring them back */
+  deleted: string[]
 }

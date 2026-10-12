@@ -2,7 +2,8 @@ import { useRef, useState } from 'react'
 import { replaceState, resetAll, updateSettings, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { programs } from '../data/programs'
-import { dayKey } from '../lib/format'
+import { dayKey, fmtTime } from '../lib/format'
+import { getSyncSecret, setSyncSecret, syncNow, useSyncStatus } from '../lib/sync'
 import type { ProgramId } from '../lib/types'
 import { BackButton, Button, Segmented, Sheet, Stepper, TopBar } from '../components/ui'
 
@@ -13,6 +14,9 @@ export function Settings() {
   const [message, setMessage] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const program = programs.find((p) => p.id === s.settings.programId) ?? programs[0]
+  const sync = useSyncStatus()
+  const [secretInput, setSecretInput] = useState(getSyncSecret())
+  const syncOn = getSyncSecret() !== ''
 
   const exportData = () => {
     const blob = new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' })
@@ -85,9 +89,57 @@ export function Settings() {
       </section>
 
       <section className="section">
+        <p className="eyebrow">Online backup</p>
+        <p className="muted small" style={{ margin: '6px 0 16px' }}>
+          Gem dine data på serveren, så de følger med mellem telefon og computer. Skriv den sync-kode, du har sat som APP_SECRET på
+          Vercel. Appen virker stadig uden net og synkroniserer, når den er online igen.
+        </p>
+        <form
+          className="secret-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            setSyncSecret(secretInput)
+          }}
+        >
+          <input
+            className="input"
+            type="password"
+            autoComplete="off"
+            placeholder="Sync-kode"
+            aria-label="Sync-kode"
+            value={secretInput}
+            onChange={(e) => setSecretInput(e.target.value)}
+          />
+          <Button type="submit" variant="secondary" className="btn-compact" disabled={secretInput.trim() === getSyncSecret()}>
+            Gem
+          </Button>
+        </form>
+        <p className={`small sync-status ${sync.state === 'error' ? 'accent' : 'muted'}`} aria-live="polite">
+          {sync.state === 'idle' && sync.lastSyncedAt ? `Synkroniseret kl. ${fmtTime(sync.lastSyncedAt)}` : sync.message}
+        </p>
+        {syncOn && (
+          <div className="screen-actions">
+            <Button variant="secondary" onClick={() => void syncNow()} disabled={sync.state === 'syncing'}>
+              Synkronisér nu
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setSyncSecret('')
+                setSecretInput('')
+              }}
+            >
+              Slå online backup fra på denne enhed
+            </Button>
+          </div>
+        )}
+      </section>
+
+      <section className="section">
         <p className="eyebrow">Data</p>
         <p className="muted small" style={{ margin: '6px 0 16px' }}>
-          Alt gemmes lokalt i denne browser. Tag en backup, hvis du skifter telefon eller rydder browserdata.
+          Alt gemmes lokalt i denne browser og, hvis online backup er slået til, også på serveren. Tag en backup-fil, hvis du vil
+          have en kopi selv.
         </p>
         <div className="screen-actions">
           <Button variant="secondary" onClick={exportData}>
@@ -109,7 +161,10 @@ export function Settings() {
       </p>
 
       {confirm === 'reset' && (
-        <Sheet title="Slet alle data?" text="Historik, statistik og indstillinger nulstilles. Det kan ikke fortrydes.">
+        <Sheet
+          title="Slet alle data?"
+          text={`Historik, statistik og indstillinger nulstilles${syncOn ? ', også på serveren' : ''}. Det kan ikke fortrydes.`}
+        >
           <Button
             onClick={() => {
               resetAll()

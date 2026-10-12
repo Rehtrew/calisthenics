@@ -12,7 +12,7 @@ const defaultSettings: Settings = {
   theme: 'dark',
 }
 
-const defaultState: AppState = { version: 1, settings: defaultSettings, sessions: [], active: null }
+const defaultState: AppState = { version: 1, settings: defaultSettings, sessions: [], active: null, updatedAt: 0, deleted: [] }
 
 export function normalize(input: unknown): AppState {
   const p = (input && typeof input === 'object' ? input : {}) as Partial<AppState>
@@ -21,6 +21,8 @@ export function normalize(input: unknown): AppState {
     settings: { ...defaultSettings, ...(p.settings ?? {}) },
     sessions: Array.isArray(p.sessions) ? p.sessions : [],
     active: p.active ?? null,
+    updatedAt: typeof p.updatedAt === 'number' ? p.updatedAt : 0,
+    deleted: Array.isArray(p.deleted) ? p.deleted.filter((x): x is string => typeof x === 'string') : [],
   }
 }
 
@@ -35,8 +37,9 @@ function load(): AppState {
 
 let state: AppState = load()
 const listeners = new Set<() => void>()
+const localListeners = new Set<() => void>()
 
-function commit(next: AppState) {
+function persist(next: AppState) {
   state = next
   try {
     localStorage.setItem(KEY, JSON.stringify(next))
@@ -46,12 +49,30 @@ function commit(next: AppState) {
   listeners.forEach((l) => l())
 }
 
+/** A change made on this device: stamps updatedAt and tells the sync layer. */
+function commit(next: Omit<AppState, 'updatedAt'> & { updatedAt?: number }) {
+  persist({ ...next, updatedAt: Date.now() })
+  localListeners.forEach((l) => l())
+}
+
+/** Adopt a state that came from the server without treating it as a local change. */
+export function applyRemoteState(next: AppState) {
+  persist(normalize(next))
+}
+
 export const getState = () => state
 
 export function subscribe(listener: () => void) {
   listeners.add(listener)
   return () => {
     listeners.delete(listener)
+  }
+}
+
+export function onLocalChange(listener: () => void) {
+  localListeners.add(listener)
+  return () => {
+    localListeners.delete(listener)
   }
 }
 
@@ -186,13 +207,17 @@ export function discardWorkout() {
 }
 
 export function deleteSession(id: string) {
-  commit({ ...state, sessions: state.sessions.filter((s) => s.id !== id) })
+  commit({ ...state, sessions: state.sessions.filter((s) => s.id !== id), deleted: [...new Set([...state.deleted, id])] })
 }
 
+/** Import a backup: its sessions win, even over earlier deletions of the same ids. */
 export function replaceState(next: unknown) {
-  commit(normalize(next))
+  const imported = normalize(next)
+  const ids = new Set(imported.sessions.map((s) => s.id))
+  commit({ ...imported, deleted: [...new Set([...state.deleted, ...imported.deleted])].filter((id) => !ids.has(id)) })
 }
 
+/** Wipe everything, and remember the ids so the server copy is wiped too. */
 export function resetAll() {
-  commit(defaultState)
+  commit({ ...defaultState, deleted: [...new Set([...state.deleted, ...state.sessions.map((s) => s.id)])] })
 }
