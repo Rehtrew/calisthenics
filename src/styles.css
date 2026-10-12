@@ -1093,6 +1093,10 @@ ul {
 }
 
 
+.weight-row {
+  margin-bottom: 28px;
+}
+
 /* weight picker */
 .weight-picker {
   display: flex;

@@ -78,7 +78,7 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
 
       <p className={`compare ${compareClass}`}>{compare}</p>
 
-      <button className="row" onClick={openWeight}>
+      <button className="row weight-row" onClick={openWeight}>
         <span className="row-main">
           <span className="row-title">Vægt efter træning</span>
           <span className="row-sub">
