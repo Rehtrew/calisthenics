@@ -863,19 +863,12 @@ ul {
   background: var(--bg);
 }
 
-.screen-head::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -20px;
-  height: 20px;
-  background: linear-gradient(var(--bg), transparent);
-  pointer-events: none;
+.rest-head {
+  padding: 16px 0 0;
 }
 
-.rest-head {
-  padding: 16px 0 14px;
+.rest-head .rest-progress {
+  margin-bottom: 0;
 }
 
 .screen .topbar {
@@ -952,6 +945,7 @@ ul {
 }
 
 .rest-progress > span {
+  background: var(--text);
   transition: width 0.2s linear;
 }
 
@@ -1478,7 +1472,7 @@ ul {
 /* rest screen: what comes next */
 .rest-main {
   justify-content: flex-start;
-  padding-top: 8px;
+  padding-top: 0;
   padding-bottom: 170px;
 }
 
@@ -1486,7 +1480,7 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 16px;
 }
 
 .up-row {
@@ -1500,10 +1494,6 @@ ul {
   padding: 14px 16px;
   border-radius: 18px;
   background: var(--card);
-}
-
-.up-row.first {
-  box-shadow: inset 0 0 0 1.5px var(--accent);
 }
 
 .up-row-text {
