@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { getLevel, LEVEL_COUNT } from '../data/programs'
-import { byEnded, countThisMonth, estimateMinutes, recentAverage, suggestNextDay, weightLog } from '../lib/stats'
+import { byEnded, countThisMonth, doneThisRound, estimateMinutes, recentAverage, suggestNextDay, weightLog } from '../lib/stats'
 import { fmtKg, fmtTime, relativeDay } from '../lib/format'
 import { isLegs } from '../lib/reps'
 import { DEFAULT_REST_SECONDS, DEFAULT_SKIP_LEGS } from '../lib/defaults'
@@ -20,6 +20,7 @@ export function Home() {
   const { levelIndex } = s.settings
   const level = getLevel(levelIndex)
   const next = suggestNextDay(level, s.sessions, levelIndex)
+  const done = doneThisRound(level, s.sessions, levelIndex)
   const [selectedId, setSelectedIdState] = useState<string | null>(rememberedDayId)
   const setSelectedId = (id: string) => {
     rememberedDayId = id
@@ -83,7 +84,7 @@ export function Home() {
           </button>
         </p>
 
-        <DayChips days={level.days} selectedId={selected.id} nextId={next.id} selectedIndex={selectedIndex} cols={cols} rows={rows} sessions={s.sessions} levelIndex={levelIndex} onSelect={setSelectedId} />
+        <DayChips days={level.days} selectedId={selected.id} nextId={next.id} done={done} selectedIndex={selectedIndex} cols={cols} rows={rows} sessions={s.sessions} levelIndex={levelIndex} onSelect={setSelectedId} />
 
         <Button onClick={() => navigate({ name: 'setup', dayId: selected.id })}>Start {selected.label}</Button>
 

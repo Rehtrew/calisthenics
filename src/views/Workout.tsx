@@ -2,21 +2,19 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { abortWorkout, discardWorkout, extendRest, finishRest, logSet, undoLastSet, useAppState } from '../lib/store'
 import { navigate } from '../lib/router'
 import { parseReps, unitLabel } from '../lib/reps'
-import { lastSetResult, sessionsForDay } from '../lib/stats'
+import { lastExerciseLogs } from '../lib/stats'
 import { fmtClock, fmtDuration } from '../lib/format'
 import { beep, buzz, primeAudio, useNow, useWakeLock, useWindowHeight } from '../lib/device'
 import type { ActiveWorkout, SetLog, SetTarget } from '../lib/types'
 import { Button, Icon, IconButton, Sheet } from '../components/ui'
 import { figureView, labelList, musclesFor, viewsFor, MUSCLE_LABEL } from '../lib/muscles'
+import { parseReps as targetFor, unitLabel as unitOf } from '../lib/reps'
 import { BodyFigure } from '../components/body/BodyFigure'
 import { ExerciseSheet } from '../components/ExerciseSheet'
 
 export function Workout() {
   const s = useAppState()
   const a = s.active
-  useEffect(() => {
-    if (!a) navigate({ name: 'home' }, { replace: true })
-  }, [a])
   useWakeLock(!!a)
   const now = useNow(1000)
   const [abort, setAbort] = useState(false)
@@ -38,8 +36,8 @@ export function Workout() {
           ? { name: nextEx.name, detail: `${nextEx.sets} × ${nextEx.reps.toLowerCase()}` }
           : { name: 'Sidste sæt', detail: 'så er du færdig' }
 
-  const previous = sessionsForDay(s.sessions, a.levelIndex, a.dayId).at(-1)
-  const lastTime = lastSetResult(previous, ex.name, a.setIndex)
+  const lastLogs = lastExerciseLogs(s.sessions, ex.name)
+  const lastTime = lastLogs?.[a.setIndex]
 
   const done = (sessionId: string | null) => {
     if (sessionId) navigate({ name: 'summary', sessionId }, { replace: true })
@@ -90,6 +88,7 @@ export function Workout() {
           active={a}
           target={parseReps(ex.reps, a.setIndex)}
           lastTime={lastTime}
+          lastLogs={lastLogs}
           onLog={(achieved, full) => done(logSet(achieved, full))}
           onShowMuscles={() => setShowMuscles(true)}
         />
@@ -121,12 +120,14 @@ function SetPanel({
   active: a,
   target,
   lastTime,
+  lastLogs,
   onLog,
   onShowMuscles,
 }: {
   active: ActiveWorkout
   target: SetTarget
   lastTime: SetLog | undefined
+  lastLogs: SetLog[] | undefined
   onLog: (achieved: number | null, full: boolean) => void
   onShowMuscles: () => void
 }) {
@@ -181,7 +182,19 @@ function SetPanel({
             <p className="target-unit center">{unitLabel(target.unit)}</p>
           </>
         )}
-        <ul className="tags rise" style={{ '--i': 4 } as CSSProperties} aria-label={`Muskler: ${labelList(muscles.primary)}`}>
+        {lastLogs && lastLogs.length > 0 && (
+          <p className="last-time rise" style={{ '--i': 4 } as CSSProperties}>
+            Sidste gang:{' '}
+            {lastLogs.map((l, i) => (
+              <span key={i} className={i === a.setIndex ? 'now' : ''}>
+                {i > 0 && <span className="muted"> · </span>}
+                {l.achieved ?? '–'}
+              </span>
+            ))}
+            <span className="muted"> {unitLabel(lastLogs[0].unit)}</span>
+          </p>
+        )}
+        <ul className="tags rise" style={{ '--i': 5 } as CSSProperties} aria-label={`Muskler: ${labelList(muscles.primary)}`}>
           {muscles.primary.map((m) => (
             <li key={m} className="tag">
               {MUSCLE_LABEL[m]}
@@ -252,10 +265,13 @@ function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNex
   }, [remainingMs])
 
   const total = a.restSeconds * 1000
+  const upcoming = upcomingSets(a, 8)
+  const sameExercise = upcoming[0] && upcoming[0].exerciseIndex === a.exerciseIndex && a.setIndex > 0
+  const cta = sameExercise ? `Start sæt ${a.setIndex + 1} af ${a.exercises[a.exerciseIndex].sets}` : 'Start næste øvelse'
 
   return (
     <>
-      <div className="screen-main">
+      <div className="screen-main rest-main">
         <p className="eyebrow rise" style={{ '--i': 0 } as CSSProperties}>
           Pause
         </p>
@@ -265,18 +281,61 @@ function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNex
         <div className="progress rest-progress">
           <span style={{ width: `${Math.min(100, (100 * remainingMs) / total)}%` }} />
         </div>
-        <p className="next">
-          Næste: <strong>{upNext.name}</strong> · {upNext.detail}
+        <p className="eyebrow up-next-label rise" style={{ '--i': 2 } as CSSProperties}>
+          Herefter
         </p>
+        <div className="up-next rise" style={{ '--i': 3 } as CSSProperties}>
+          {upcoming.map((u, i) => (
+            <UpcomingCard key={`${u.exerciseIndex}-${u.setIndex}`} item={u} first={i === 0} />
+          ))}
+        </div>
+        <span className="sr-only">
+          Næste: {upNext.name} · {upNext.detail}
+        </span>
       </div>
       <div className="screen-actions">
-        <div className="actions-row">
-          <Button variant="secondary" onClick={() => extendRest(30)}>
-            +30 sek
-          </Button>
-          <Button onClick={finishRest}>Spring over</Button>
-        </div>
+        <Button onClick={finishRest}>{cta}</Button>
+        <Button variant="secondary" onClick={() => extendRest(30)}>
+          +30 sekunders pause
+        </Button>
       </div>
     </>
+  )
+}
+
+interface Upcoming {
+  exerciseIndex: number
+  setIndex: number
+  name: string
+  sets: number
+  reps: string
+}
+
+/** The sets still to do, in order, starting with the one the rest leads into. */
+function upcomingSets(a: ActiveWorkout, limit: number): Upcoming[] {
+  const out: Upcoming[] = []
+  for (let e = a.exerciseIndex; e < a.exercises.length && out.length < limit; e++) {
+    const ex = a.exercises[e]
+    for (let s = e === a.exerciseIndex ? a.setIndex : 0; s < ex.sets && out.length < limit; s++) {
+      out.push({ exerciseIndex: e, setIndex: s, name: ex.name, sets: ex.sets, reps: ex.reps })
+    }
+  }
+  return out
+}
+
+function UpcomingCard({ item, first }: { item: Upcoming; first: boolean }) {
+  const muscles = musclesFor(item.name)
+  const view = figureView(viewsFor(muscles)[0], muscles)
+  const t = targetFor(item.reps, item.setIndex)
+  return (
+    <div className={`up-card ${first ? 'first' : ''}`}>
+      <BodyFigure view={view} primary={muscles.primary} secondary={muscles.secondary} height={72} />
+      <div className="up-card-text">
+        <span className="up-card-name">{item.name}</span>
+        <span className="up-card-sub">
+          Sæt {item.setIndex + 1} af {item.sets} · {t.isMax ? 'max' : `${t.value} ${unitOf(t.unit)}`}
+        </span>
+      </div>
+    </div>
   )
 }

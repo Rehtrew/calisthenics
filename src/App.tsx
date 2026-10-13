@@ -22,10 +22,11 @@ export default function App() {
   }, [theme])
 
   const enter = getLastDirection() === 'back' ? 'no-enter' : undefined
-  return <div className={enter}>{screen(route)}</div>
+  const hasActive = useAppState().active !== null
+  return <div className={enter}>{screen(route, hasActive)}</div>
 }
 
-function screen(route: ReturnType<typeof useRoute>) {
+function screen(route: ReturnType<typeof useRoute>, hasActive: boolean) {
   switch (route.name) {
     case 'setup':
       return <Setup key={route.dayId} dayId={route.dayId} />
@@ -34,7 +35,7 @@ function screen(route: ReturnType<typeof useRoute>) {
     case 'program':
       return <ProgramOverview />
     case 'workout':
-      return <Workout />
+      return hasActive ? <Workout /> : <Home />
     case 'summary':
       return <Story key={route.sessionId} sessionId={route.sessionId} />
     case 'session':

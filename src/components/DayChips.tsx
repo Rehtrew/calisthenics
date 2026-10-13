@@ -12,6 +12,7 @@ export function DayChips({
   days,
   selectedId,
   nextId,
+  done,
   selectedIndex,
   cols,
   rows,
@@ -22,6 +23,8 @@ export function DayChips({
   days: ProgramDay[]
   selectedId: string
   nextId: string
+  /** days finished in the current round; drawn faded */
+  done: Set<string>
   selectedIndex: number
   cols: number
   rows: number
@@ -32,7 +35,8 @@ export function DayChips({
   const vars = { '--cols': cols, '--rows': rows, '--col': selectedIndex % cols, '--row': Math.floor(selectedIndex / cols) } as CSSProperties
   const hint = (d: ProgramDay) => {
     const last = sessionsForDay(sessions, levelIndex, d.id).at(-1)
-    return last ? cap(relativeDay(last.endedAt)) : 'Ikke trænet'
+    if (!last) return 'Ikke trænet'
+    return done.has(d.id) ? `Gennemført · ${relativeDay(last.endedAt)}` : cap(relativeDay(last.endedAt))
   }
   const label = (d: ProgramDay) => (
     <>
@@ -48,7 +52,14 @@ export function DayChips({
     <div className="day-chips" style={vars}>
       <div className="chips-layer" role="radiogroup" aria-label="Vælg dag">
         {days.map((d, i) => (
-          <button key={d.id} role="radio" aria-checked={d.id === selectedId} className="chip stagger" style={{ '--i': i } as CSSProperties} onClick={() => onSelect(d.id)}>
+          <button
+            key={d.id}
+            role="radio"
+            aria-checked={d.id === selectedId}
+            className={`chip stagger ${done.has(d.id) ? 'done' : ''}`}
+            style={{ '--i': i } as CSSProperties}
+            onClick={() => onSelect(d.id)}
+          >
             {label(d)}
           </button>
         ))}

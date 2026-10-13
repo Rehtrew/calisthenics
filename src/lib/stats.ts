@@ -72,13 +72,64 @@ export function recentAverage(sessions: Session[], n = 5): number | null {
   return Math.round(last.reduce((sum, s) => sum + sessionScore(s).pct, 0) / last.length)
 }
 
+/**
+ * Days finished in the current round at a level. A round is one pass through
+ * all the level's days; once every day has been completed the round resets.
+ */
+export function doneThisRound(level: Level, sessions: Session[], levelIndex: number): Set<string> {
+  const ids = level.days.map((d) => d.id)
+  let done = new Set<string>()
+  for (const s of sessions.filter((x) => x.levelIndex === levelIndex && x.status === 'completed').sort(byEnded)) {
+    if (!ids.includes(s.dayId)) continue
+    done.add(s.dayId)
+    if (done.size === ids.length) done = new Set()
+  }
+  return done
+}
+
+/** The day to train next: an aborted day again, otherwise the first day not yet done this round. */
 export function suggestNextDay(level: Level, sessions: Session[], levelIndex: number): ProgramDay {
   const atLevel = sessions.filter((s) => s.levelIndex === levelIndex).sort(byEnded)
   const last = atLevel.at(-1)
-  if (!last) return level.days[0]
-  const idx = Math.max(0, level.days.findIndex((d) => d.id === last.dayId))
-  if (last.status === 'aborted') return level.days[idx]
-  return level.days[(idx + 1) % level.days.length]
+  if (last?.status === 'aborted') return level.days.find((d) => d.id === last.dayId) ?? level.days[0]
+  const done = doneThisRound(level, sessions, levelIndex)
+  return level.days.find((d) => !done.has(d.id)) ?? level.days[0]
+}
+
+export interface ExerciseHistoryEntry {
+  sessionId: string
+  at: number
+  dayLabel: string
+  levelIndex: number
+  logs: SetLog[]
+  /** reps achieved across the logged sets (seconds for holds) */
+  total: number
+  /** how much of the planned work was done, 0-100 */
+  pct: number
+}
+
+/** Every time an exercise was logged, oldest first. */
+export function exerciseHistory(sessions: Session[], name: string): ExerciseHistoryEntry[] {
+  const out: ExerciseHistoryEntry[] = []
+  for (const s of [...sessions].sort(byEnded)) {
+    const ex = s.exercises.find((e) => e.name === name)
+    if (!ex || ex.logs.length === 0) continue
+    out.push({
+      sessionId: s.id,
+      at: s.endedAt,
+      dayLabel: s.dayLabel,
+      levelIndex: s.levelIndex,
+      logs: ex.logs,
+      total: ex.logs.reduce((n, l) => n + (l.achieved ?? 0), 0),
+      pct: exerciseScore(ex).pct,
+    })
+  }
+  return out
+}
+
+/** Sets logged the last time this exercise was trained, ignoring a session in progress. */
+export function lastExerciseLogs(sessions: Session[], name: string): SetLog[] | undefined {
+  return exerciseHistory(sessions, name).at(-1)?.logs
 }
 
 export function estimateMinutes(exercises: Pick<Exercise, 'reps' | 'sets'>[], restSeconds: number): number {
