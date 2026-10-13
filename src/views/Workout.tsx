@@ -281,10 +281,7 @@ function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNex
         <div className="progress rest-progress">
           <span style={{ width: `${Math.min(100, (100 * remainingMs) / total)}%` }} />
         </div>
-        <p className="eyebrow up-next-label rise" style={{ '--i': 2 } as CSSProperties}>
-          Herefter
-        </p>
-        <ul className="up-next rise" style={{ '--i': 3 } as CSSProperties} aria-label={`Næste: ${upNext.name} · ${upNext.detail}`}>
+        <ul className="up-next rise" style={{ '--i': 2 } as CSSProperties} aria-label={`Næste: ${upNext.name} · ${upNext.detail}`}>
           {upcoming.map((u, i) => (
             <UpcomingRow key={`${u.exerciseIndex}-${u.setIndex}`} item={u} first={i === 0} />
           ))}
