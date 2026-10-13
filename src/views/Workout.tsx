@@ -265,7 +265,7 @@ function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNex
   }, [remainingMs])
 
   const total = a.restSeconds * 1000
-  const upcoming = upcomingSets(a, 8)
+  const upcoming = upcomingSets(a, 40)
   const sameExercise = upcoming[0] && upcoming[0].exerciseIndex === a.exerciseIndex && a.setIndex > 0
   const cta = sameExercise ? `Start sæt ${a.setIndex + 1} af ${a.exercises[a.exerciseIndex].sets}` : 'Start næste øvelse'
 
@@ -284,20 +284,19 @@ function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNex
         <p className="eyebrow up-next-label rise" style={{ '--i': 2 } as CSSProperties}>
           Herefter
         </p>
-        <div className="up-next rise" style={{ '--i': 3 } as CSSProperties}>
+        <ul className="up-next rise" style={{ '--i': 3 } as CSSProperties} aria-label={`Næste: ${upNext.name} · ${upNext.detail}`}>
           {upcoming.map((u, i) => (
-            <UpcomingCard key={`${u.exerciseIndex}-${u.setIndex}`} item={u} first={i === 0} />
+            <UpcomingRow key={`${u.exerciseIndex}-${u.setIndex}`} item={u} first={i === 0} />
           ))}
-        </div>
-        <span className="sr-only">
-          Næste: {upNext.name} · {upNext.detail}
-        </span>
+        </ul>
       </div>
-      <div className="screen-actions">
-        <Button onClick={finishRest}>{cta}</Button>
-        <Button variant="secondary" onClick={() => extendRest(30)}>
-          +30 sekunders pause
-        </Button>
+      <div className="screen-actions rest-actions">
+        <div>
+          <Button onClick={finishRest}>{cta}</Button>
+          <Button variant="secondary" onClick={() => extendRest(30)}>
+            +30 sekunders pause
+          </Button>
+        </div>
       </div>
     </>
   )
@@ -323,19 +322,20 @@ function upcomingSets(a: ActiveWorkout, limit: number): Upcoming[] {
   return out
 }
 
-function UpcomingCard({ item, first }: { item: Upcoming; first: boolean }) {
+function UpcomingRow({ item, first }: { item: Upcoming; first: boolean }) {
   const muscles = musclesFor(item.name)
   const view = figureView(viewsFor(muscles)[0], muscles)
   const t = targetFor(item.reps, item.setIndex)
   return (
-    <div className={`up-card ${first ? 'first' : ''}`}>
-      <BodyFigure view={view} primary={muscles.primary} secondary={muscles.secondary} height={72} />
-      <div className="up-card-text">
-        <span className="up-card-name">{item.name}</span>
-        <span className="up-card-sub">
+    <li className={`up-row ${first ? 'first' : ''}`}>
+      <div className="up-row-text">
+        {first && <span className="eyebrow accent">Næste</span>}
+        <span className="up-row-name">{item.name}</span>
+        <span className="up-row-sub">
           Sæt {item.setIndex + 1} af {item.sets} · {t.isMax ? 'max' : `${t.value} ${unitOf(t.unit)}`}
         </span>
       </div>
-    </div>
+      <BodyFigure view={view} primary={muscles.primary} secondary={muscles.secondary} height={64} />
+    </li>
   )
 }
