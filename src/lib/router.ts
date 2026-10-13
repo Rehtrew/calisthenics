@@ -39,7 +39,7 @@ type ViewTransitionDocument = Document & {
  * flushed synchronously inside the update callback, so the browser snapshots the
  * new screen rather than a stale copy of the old one.
  */
-function applyRoute(next: Route, direction: Direction) {
+function applyRoute(next: Route, direction: Direction, animate = true) {
   lastDirection = direction
   const doc = document as ViewTransitionDocument
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -47,7 +47,7 @@ function applyRoute(next: Route, direction: Direction) {
     route = next
     emit()
   }
-  if (!doc.startViewTransition || reduce) {
+  if (!animate || !doc.startViewTransition || reduce) {
     update()
     window.scrollTo(0, 0)
     return
@@ -62,8 +62,17 @@ function applyRoute(next: Route, direction: Direction) {
   })
 }
 
+/**
+ * Set by the app's own back button right before history.back(). A popstate
+ * without it comes from the browser (iOS swipe-back, browser buttons), which
+ * has already animated the page itself, so we swap screens without a transition.
+ */
+let expectingOwnPop = false
+
 window.addEventListener('popstate', (e) => {
-  applyRoute((e.state?.route as Route | undefined) ?? { name: 'home' }, 'back')
+  const animate = expectingOwnPop
+  expectingOwnPop = false
+  applyRoute((e.state?.route as Route | undefined) ?? { name: 'home' }, 'back', animate)
 })
 
 export function navigate(next: Route, opts: { replace?: boolean } = {}) {
@@ -73,8 +82,13 @@ export function navigate(next: Route, opts: { replace?: boolean } = {}) {
 }
 
 export function back(fallback: Route = { name: 'home' }) {
-  if (history.length > 1) history.back()
-  else navigate(fallback, { replace: true })
+  if (history.length > 1) {
+    expectingOwnPop = true
+    history.back()
+    setTimeout(() => {
+      expectingOwnPop = false
+    }, 1000)
+  } else navigate(fallback, { replace: true })
 }
 
 export function useRoute(): Route {
