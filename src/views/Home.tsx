@@ -113,7 +113,7 @@ export function Home() {
       <section className="stats">
         <Stat index={0} value={s.sessions.length} label="Træninger i alt" />
         <Stat index={1} value={countThisMonth(s.sessions)} label="Denne måned" />
-        <Stat index={2} value={avg ?? '–'} unit={avg != null ? '%' : undefined} label="Gennemsnit, sidste 5" />
+        <Stat index={2} value={avg ?? '–'} unit={avg != null ? '%' : undefined} label="Af programmet nået, seneste 5 træninger" />
         <Stat index={3} value={atLevel} label={`Gennemført på ${level.name.toLowerCase()}`} />
       </section>
 
