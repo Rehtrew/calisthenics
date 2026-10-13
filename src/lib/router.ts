@@ -29,6 +29,9 @@ history.replaceState({ route }, '')
 const listeners = new Set<() => void>()
 const emit = () => listeners.forEach((l) => l())
 
+/** Screens that show the big day title; only between these does the title morph. */
+const TITLE_ROUTES = new Set<Route['name']>(['home', 'setup', 'day'])
+
 type ViewTransitionDocument = Document & {
   startViewTransition?: (update: () => Promise<void> | void) => { finished: Promise<void> }
 }
@@ -52,13 +55,16 @@ function applyRoute(next: Route, direction: Direction, animate = true) {
     window.scrollTo(0, 0)
     return
   }
-  document.documentElement.dataset.nav = direction
+  const html = document.documentElement
+  html.dataset.nav = direction
+  if (TITLE_ROUTES.has(route.name) && TITLE_ROUTES.has(next.name)) html.dataset.vtTitle = '1'
   const transition = doc.startViewTransition(() => {
     flushSync(update)
     window.scrollTo(0, 0)
   })
   void transition.finished.finally(() => {
-    delete document.documentElement.dataset.nav
+    delete html.dataset.nav
+    delete html.dataset.vtTitle
   })
 }
 
