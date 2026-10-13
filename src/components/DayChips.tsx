@@ -36,7 +36,7 @@ export function DayChips({
   const hint = (d: ProgramDay) => {
     const last = sessionsForDay(sessions, levelIndex, d.id).at(-1)
     if (!last) return 'Ikke trænet'
-    return done.has(d.id) ? `Gennemført · ${relativeDay(last.endedAt)}` : cap(relativeDay(last.endedAt))
+    return done.has(d.id) ? 'Gennemført' : cap(relativeDay(last.endedAt))
   }
   const label = (d: ProgramDay) => (
     <>
