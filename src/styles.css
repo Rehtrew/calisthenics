@@ -1997,6 +1997,7 @@ html[data-vt-title] .day-title {
 html[data-nav='forward']::view-transition-old(root) {
   animation-name: vt-dim, vt-push-left;
   animation-duration: 320ms;
+  animation-timing-function: ease-out;
 }
 
 html[data-nav='forward']::view-transition-new(root) {
@@ -2013,6 +2014,7 @@ html[data-nav='back']::view-transition-old(root) {
 html[data-nav='back']::view-transition-new(root) {
   animation-name: vt-undim, vt-return-left;
   animation-duration: 280ms;
+  animation-timing-function: ease-out;
 }
 
 /* the day title morphs when both screens have one; otherwise it fades fast instead of freezing */
@@ -2042,7 +2044,8 @@ html[data-nav='back']::view-transition-new(root) {
 
 @keyframes vt-dim {
   to {
-    opacity: 0.55;
+    opacity: 0.45;
+    filter: blur(6px);
   }
 }
 
@@ -2060,7 +2063,8 @@ html[data-nav='back']::view-transition-new(root) {
 
 @keyframes vt-undim {
   from {
-    opacity: 0.55;
+    opacity: 0.45;
+    filter: blur(6px);
   }
 }
 
