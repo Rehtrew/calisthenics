@@ -1504,6 +1504,7 @@ ul {
 
 .rest-actions > div {
   pointer-events: auto;
+  width: 100%;
   max-width: 500px;
   margin: 0 auto;
   display: flex;
