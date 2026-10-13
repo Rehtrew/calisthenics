@@ -22,6 +22,10 @@
   --body-bg: #0b0b0b;
   --body-base: #171717;
   --body-muscle: #262626;
+  --card: #1a1a1a;
+  --card-body-bg: #0b0b0b;
+  --card-body-base: #0f0f0f;
+  --card-body-muscle: #383838;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
@@ -38,6 +42,10 @@
   --body-bg: #f4f4f2;
   --body-base: #dedcd8;
   --body-muscle: #c9c7c2;
+  --card: #e9e9e6;
+  --card-body-bg: #f4f4f2;
+  --card-body-base: #d3d1cc;
+  --card-body-muscle: #b4b2ad;
   --text: #0b0b0b;
   --muted: #6f6f6f;
   --on-accent: #ffffff;
@@ -840,9 +848,34 @@ ul {
   min-height: 100dvh;
   max-width: 540px;
   margin: 0 auto;
-  padding: calc(12px + env(safe-area-inset-top)) 20px calc(16px + env(safe-area-inset-bottom));
+  padding: 0 20px calc(16px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
+}
+
+/* stays put while the list below scrolls */
+.screen-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0 -20px;
+  padding: calc(12px + env(safe-area-inset-top)) 20px 0;
+  background: var(--bg);
+}
+
+.screen-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -20px;
+  height: 20px;
+  background: linear-gradient(var(--bg), transparent);
+  pointer-events: none;
+}
+
+.rest-head {
+  padding: 16px 0 14px;
 }
 
 .screen .topbar {
@@ -911,7 +944,7 @@ ul {
 
 .rest-clock {
   font-size: clamp(84px, 28vw, 150px);
-  margin: 8px 0 24px;
+  margin: 4px 0 18px;
 }
 
 .rest-progress {
@@ -1445,6 +1478,7 @@ ul {
 /* rest screen: what comes next */
 .rest-main {
   justify-content: flex-start;
+  padding-top: 8px;
   padding-bottom: 170px;
 }
 
@@ -1452,17 +1486,20 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 28px;
+  margin-top: 8px;
 }
 
 .up-row {
+  --body-bg: var(--card-body-bg);
+  --body-base: var(--card-body-base);
+  --body-muscle: var(--card-body-muscle);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;
   border-radius: 18px;
-  background: var(--surface-2);
+  background: var(--card);
 }
 
 .up-row.first {

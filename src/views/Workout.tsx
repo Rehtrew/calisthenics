@@ -54,6 +54,7 @@ export function Workout() {
 
   return (
     <div className="screen">
+      <div className="screen-head">
       <header className="topbar workout-bar">
         <div className="workout-bar-left">
           <IconButton
@@ -79,9 +80,11 @@ export function Workout() {
       <div className="progress" aria-label={`${doneSets} af ${totalSets} sæt`}>
         <span style={{ width: `${(100 * doneSets) / totalSets}%` }} />
       </div>
+      {a.phase === 'rest' && <RestClock key={a.restEndsAt ?? 0} active={a} />}
+      </div>
 
       {a.phase === 'rest' ? (
-        <RestPanel key={a.restEndsAt ?? 0} active={a} upNext={upNext} />
+        <RestList active={a} upNext={upNext} />
       ) : (
         <SetPanel
           key={`${a.exerciseIndex}-${a.setIndex}`}
@@ -251,7 +254,7 @@ function SetPanel({
   )
 }
 
-function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNext }) {
+function RestClock({ active: a }: { active: ActiveWorkout }) {
   const now = useNow(200)
   const remainingMs = Math.max(0, (a.restEndsAt ?? 0) - now)
   const fired = useRef(false)
@@ -265,6 +268,22 @@ function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNex
   }, [remainingMs])
 
   const total = a.restSeconds * 1000
+  return (
+    <div className="rest-head">
+      <p className="eyebrow rise" style={{ '--i': 0 } as CSSProperties}>
+        Pause
+      </p>
+      <div className="target rest-clock rise" style={{ '--i': 1 } as CSSProperties}>
+        {fmtClock(Math.ceil(remainingMs / 1000))}
+      </div>
+      <div className="progress rest-progress">
+        <span style={{ width: `${Math.min(100, (100 * remainingMs) / total)}%` }} />
+      </div>
+    </div>
+  )
+}
+
+function RestList({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNext }) {
   const upcoming = upcomingSets(a, 40)
   const sameExercise = upcoming[0] && upcoming[0].exerciseIndex === a.exerciseIndex && a.setIndex > 0
   const cta = sameExercise ? `Start sæt ${a.setIndex + 1} af ${a.exercises[a.exerciseIndex].sets}` : 'Start næste øvelse'
@@ -272,15 +291,6 @@ function RestPanel({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNex
   return (
     <>
       <div className="screen-main rest-main">
-        <p className="eyebrow rise" style={{ '--i': 0 } as CSSProperties}>
-          Pause
-        </p>
-        <div className="target rest-clock rise" style={{ '--i': 1 } as CSSProperties}>
-          {fmtClock(Math.ceil(remainingMs / 1000))}
-        </div>
-        <div className="progress rest-progress">
-          <span style={{ width: `${Math.min(100, (100 * remainingMs) / total)}%` }} />
-        </div>
         <ul className="up-next rise" style={{ '--i': 2 } as CSSProperties} aria-label={`Næste: ${upNext.name} · ${upNext.detail}`}>
           {upcoming.map((u, i) => (
             <UpcomingRow key={`${u.exerciseIndex}-${u.setIndex}`} item={u} first={i === 0} />
