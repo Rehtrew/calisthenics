@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import type { ProgramDay, Session } from '../lib/types'
 import { sessionsForDay } from '../lib/stats'
 import { cap, relativeDay } from '../lib/format'
+import { dayName, t } from '../lib/i18n'
 
 /**
  * Day picker. Two identical grids are stacked: the dark one takes the taps, the
@@ -35,14 +36,14 @@ export function DayChips({
   const vars = { '--cols': cols, '--rows': rows, '--col': selectedIndex % cols, '--row': Math.floor(selectedIndex / cols) } as CSSProperties
   const hint = (d: ProgramDay) => {
     const last = sessionsForDay(sessions, levelIndex, d.id).at(-1)
-    if (!last) return 'Ikke trænet'
-    return done.has(d.id) ? 'Gennemført' : cap(relativeDay(last.endedAt))
+    if (!last) return t('Ikke trænet')
+    return done.has(d.id) ? t('Gennemført') : cap(relativeDay(last.endedAt))
   }
   const label = (d: ProgramDay) => (
     <>
       <span>
-        {d.id === nextId && <i className="dot" aria-label="Foreslået" />}
-        {d.label}
+        {d.id === nextId && <i className="dot" aria-label={t('Foreslået')} />}
+        {dayName(d.label)}
       </span>
       <small>{hint(d)}</small>
     </>
@@ -50,7 +51,7 @@ export function DayChips({
 
   return (
     <div className="day-chips" style={vars}>
-      <div className="chips-layer" role="radiogroup" aria-label="Vælg dag">
+      <div className="chips-layer" role="radiogroup" aria-label={t('Vælg dag')}>
         {days.map((d, i) => (
           <button
             key={d.id}

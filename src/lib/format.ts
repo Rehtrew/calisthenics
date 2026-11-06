@@ -1,14 +1,24 @@
+import { getLang, locale, t } from './i18n'
+
 const pad = (n: number) => String(n).padStart(2, '0')
 
-const long = new Intl.DateTimeFormat('da-DK', { weekday: 'long', day: 'numeric', month: 'long' })
-const short = new Intl.DateTimeFormat('da-DK', { day: 'numeric', month: 'short' })
-const month = new Intl.DateTimeFormat('da-DK', { month: 'long', year: 'numeric' })
-const time = new Intl.DateTimeFormat('da-DK', { hour: '2-digit', minute: '2-digit' })
+const formatters = new Map<string, Intl.DateTimeFormat>()
 
-export const fmtDateLong = (ts: number) => long.format(ts)
-export const fmtDateShort = (ts: number) => short.format(ts).replace(/\.$/, '')
-export const fmtMonth = (ts: number) => month.format(ts)
-export const fmtTime = (ts: number) => time.format(ts)
+/** One Intl formatter per locale and shape, made the first time it is needed. */
+function fmt(name: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const key = `${locale()}:${name}`
+  let f = formatters.get(key)
+  if (!f) {
+    f = new Intl.DateTimeFormat(locale(), options)
+    formatters.set(key, f)
+  }
+  return f
+}
+
+export const fmtDateLong = (ts: number) => fmt('long', { weekday: 'long', day: 'numeric', month: 'long' }).format(ts)
+export const fmtDateShort = (ts: number) => fmt('short', { day: 'numeric', month: 'short' }).format(ts).replace(/\.$/, '')
+export const fmtMonth = (ts: number) => fmt('month', { month: 'long', year: 'numeric' }).format(ts)
+export const fmtTime = (ts: number) => fmt('time', { hour: '2-digit', minute: '2-digit' }).format(ts)
 
 export function fmtDuration(ms: number): string {
   const s = Math.max(0, Math.round(ms / 1000))
@@ -36,17 +46,17 @@ function startOfDay(ts: number): number {
 
 export function relativeDay(ts: number, now = Date.now()): string {
   const diff = Math.round((startOfDay(now) - startOfDay(ts)) / 86_400_000)
-  if (diff <= 0) return 'i dag'
-  if (diff === 1) return 'i går'
-  if (diff < 7) return `${diff} dage siden`
+  if (diff <= 0) return t('i dag')
+  if (diff === 1) return t('i går')
+  if (diff < 7) return t('{n} dage siden', { n: diff })
   return fmtDateShort(ts)
 }
 
 /** Capitalize the first letter, for labels that start a line. */
 export const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s)
 
-/** Weight with one decimal and a Danish comma: 106,2 */
-export const fmtKg = (kg: number) => (Math.round(kg * 10) / 10).toFixed(1).replace('.', ',')
+/** Weight with one decimal and the language's decimal mark: 106,2 or 106.2 */
+export const fmtKg = (kg: number) => (Math.round(kg * 10) / 10).toFixed(1).replace('.', getLang() === 'da' ? ',' : '.')
 
 /** Parse "106,2" or "106.2" into a number, or null when it is not a weight. */
 export function parseKg(text: string): number | null {

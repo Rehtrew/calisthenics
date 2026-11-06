@@ -2,6 +2,7 @@ import { previousSession, sessionScore } from './stats'
 import { weekStreak } from './streak'
 import { durationWords, energy, formatKg, funFact, tonnage } from './energy'
 import type { Session } from './types'
+import { dayName, decimal, plural, t } from './i18n'
 
 export interface Slide {
   value: string
@@ -13,7 +14,6 @@ export interface Slide {
 }
 
 const sign = (n: number) => (n > 0 ? '+' : '')
-const da = (n: number) => String(Math.round(n * 10) / 10).replace('.', ',')
 
 export function buildSlides(session: Session, all: Session[], weightKg: number): Slide[] {
   const score = sessionScore(session)
@@ -28,20 +28,25 @@ export function buildSlides(session: Session, all: Session[], weightKg: number):
   slides.push({
     value: String(score.pct),
     unit: '%',
-    text: completed
-      ? `Du gennemførte ${score.setsDone} af ${score.setsPlanned} sæt på ${session.dayLabel}.`
-      : `Du afbrød efter ${score.setsDone} af ${score.setsPlanned} sæt på ${session.dayLabel}.`,
+    text: t(completed ? 'Du gennemførte {done} af {planned} sæt på {day}.' : 'Du afbrød efter {done} af {planned} sæt på {day}.', {
+      done: score.setsDone,
+      planned: score.setsPlanned,
+      day: dayName(session.dayLabel),
+    }),
     sub: prevScore
-      ? `${sign(score.reps - prevScore.reps)}${score.reps - prevScore.reps} reps og ${sign(score.pct - prevScore.pct)}${score.pct - prevScore.pct} point i forhold til sidst.`
-      : 'Første gang på denne dag.',
+      ? t('{dr} reps og {dp} point i forhold til sidst.', {
+          dr: `${sign(score.reps - prevScore.reps)}${score.reps - prevScore.reps}`,
+          dp: `${sign(score.pct - prevScore.pct)}${score.pct - prevScore.pct}`,
+        })
+      : t('Første gang på denne dag.'),
     positive: !!prevScore && (score.reps > prevScore.reps || score.pct > prevScore.pct),
   })
 
   slides.push({
     value: String(e.kcal),
     unit: 'kcal',
-    text: `Du forbrændte cirka ${e.kcal} kalorier og var i gang i ${durationWords(e.totalSeconds)}.`,
-    sub: `Det svarer til ${funFact(e.kcal, weightKg, session.id)}. Regnet ud fra ${weightKg} kg.`,
+    text: t('Du forbrændte cirka {kcal} kalorier og var i gang i {dur}.', { kcal: e.kcal, dur: durationWords(e.totalSeconds) }),
+    sub: t('Det svarer til {fact}. Regnet ud fra {kg} kg.', { fact: funFact(e.kcal, weightKg, session.id), kg: weightKg }),
   })
 
   if (kg > 0) {
@@ -49,8 +54,8 @@ export function buildSlides(session: Session, all: Session[], weightKg: number):
     slides.push({
       value: f.value,
       unit: f.unit,
-      text: `Du flyttede cirka ${f.value} ${f.unit} med ${score.reps} reps.`,
-      sub: `Det er ${da(kg / weightKg)} gange din egen kropsvægt.`,
+      text: t('Du flyttede cirka {v} {unit} med {reps} reps.', { v: f.value, unit: f.unit, reps: score.reps }),
+      sub: t('Det er {x} gange din egen kropsvægt.', { x: decimal(kg / weightKg) }),
     })
   }
 
@@ -60,19 +65,19 @@ export function buildSlides(session: Session, all: Session[], weightKg: number):
     slides.push({
       value: String(work),
       unit: 'min',
-      text: `${work} minut${work === 1 ? '' : 'ter'} i arbejde og ${rest} minut${rest === 1 ? '' : 'ter'} pause.`,
-      sub: score.setsDone ? `Cirka ${Math.round(e.restSeconds / score.setsDone)} sekunders pause pr. sæt.` : undefined,
+      text: t('{work} i arbejde og {rest} pause.', { work: plural(work, '{n} minut', '{n} minutter'), rest: plural(rest, '{n} minut', '{n} minutter') }),
+      sub: score.setsDone ? t('Cirka {n} sekunders pause pr. sæt.', { n: Math.round(e.restSeconds / score.setsDone) }) : undefined,
     })
   }
 
   slides.push({
     value: String(streak.weeks),
-    unit: streak.weeks === 1 ? 'uge' : 'uger',
+    unit: streak.weeks === 1 ? t('uge') : t('uger'),
     text:
       streak.weeks <= 1
-        ? `Første uge i en ny streak. ${streak.activities} træning${streak.activities === 1 ? '' : 'er'} indtil videre.`
-        : `Din streak er nu ${streak.weeks} uger med ${streak.activities} træninger.`,
-    sub: streak.weeks >= 4 ? 'Stabilt. Bliv ved.' : streak.weeks >= 2 ? 'Godt på vej. En træning om ugen holder den i live.' : 'En træning om ugen holder streaken i live.',
+        ? t('Første uge i en ny streak. {n} indtil videre.', { n: plural(streak.activities, '{n} træning', '{n} træninger') })
+        : t('Din streak er nu {w} uger med {n} træninger.', { w: streak.weeks, n: streak.activities }),
+    sub: streak.weeks >= 4 ? t('Stabilt. Bliv ved.') : streak.weeks >= 2 ? t('Godt på vej. En træning om ugen holder den i live.') : t('En træning om ugen holder streaken i live.'),
   })
 
   return slides

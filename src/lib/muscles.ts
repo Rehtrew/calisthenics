@@ -1,4 +1,5 @@
 import { viewMuscles, type BodyView } from '../components/body/data'
+import { getLang } from './i18n'
 
 export type Muscle =
   | 'chest'
@@ -19,6 +20,28 @@ export type Muscle =
   | 'calves'
 
 /** Everyday names, not anatomy class. */
+export const MUSCLE_LABEL_EN: Record<Muscle, string> = {
+  chest: 'Chest',
+  shoulders: 'Shoulders',
+  traps: 'Traps',
+  biceps: 'Biceps',
+  triceps: 'Triceps',
+  forearms: 'Forearms',
+  abs: 'Abs',
+  obliques: 'Obliques',
+  serratus: 'Serratus',
+  lats: 'Lats',
+  upper_back: 'Upper back',
+  lower_back: 'Lower back',
+  glutes: 'Glutes',
+  quads: 'Quads',
+  hamstrings: 'Hamstrings',
+  calves: 'Calves',
+}
+
+/** The muscle's name in the current language. */
+export const muscleLabel = (m: Muscle): string => (getLang() === 'en' ? MUSCLE_LABEL_EN[m] : MUSCLE_LABEL[m])
+
 export const MUSCLE_LABEL: Record<Muscle, string> = {
   chest: 'Bryst',
   shoulders: 'Skuldre',
@@ -179,4 +202,4 @@ export function viewsFor(map: MuscleMap): BodyView[] {
   return addOther ? [first, other] : [first]
 }
 
-export const labelList = (muscles: Muscle[]) => muscles.map((m) => MUSCLE_LABEL[m]).join(', ')
+export const labelList = (muscles: Muscle[]) => muscles.map((m) => muscleLabel(m)).join(', ')

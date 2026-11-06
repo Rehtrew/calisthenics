@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import type { ActiveWorkout, AppState, Exercise, ProgramDay, Session, SessionStatus, SetLog, Settings } from './types'
 import { parseReps } from './reps'
+import { detectLang, setLang } from './i18n'
 
 const KEY = 'calisthenics:v1'
 
@@ -11,6 +12,7 @@ const defaultSettings: Settings = {
   theme: 'dark',
   weightKg: 106,
   name: '',
+  lang: 'da',
 }
 
 const defaultState: AppState = { version: 1, settings: defaultSettings, sessions: [], active: null, updatedAt: 0, deleted: [] }
@@ -37,18 +39,21 @@ export function normalize(input: unknown): AppState {
 function load(): AppState {
   try {
     const raw = localStorage.getItem(KEY)
-    return raw ? normalize(JSON.parse(raw)) : defaultState
+    // A fresh install follows the browser's language; saved data keeps the language it was saved with.
+    return raw ? normalize(JSON.parse(raw)) : { ...defaultState, settings: { ...defaultSettings, lang: detectLang() } }
   } catch {
     return defaultState
   }
 }
 
 let state: AppState = load()
+setLang(state.settings.lang)
 const listeners = new Set<() => void>()
 const localListeners = new Set<() => void>()
 
 function persist(next: AppState) {
   state = next
+  setLang(next.settings.lang)
   try {
     localStorage.setItem(KEY, JSON.stringify(next))
   } catch {

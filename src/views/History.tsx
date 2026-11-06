@@ -3,6 +3,7 @@ import { byEnded } from '../lib/stats'
 import { cap, fmtMonth } from '../lib/format'
 import { BackButton, TopBar } from '../components/ui'
 import { SessionRow } from '../components/SessionRow'
+import { t } from '../lib/i18n'
 
 export function History() {
   const s = useAppState()
@@ -23,9 +24,9 @@ export function History() {
     <div className="page">
       <TopBar left={<BackButton />} />
       <section className="hero">
-        <p className="eyebrow">Historik</p>
+        <p className="eyebrow">{t('Historik')}</p>
         <h1 className="display">{s.sessions.length}</h1>
-        <p className="muted">Træninger i alt</p>
+        <p className="muted">{t('Træninger i alt')}</p>
       </section>
       {groups.map((g) => (
         <section key={g.key}>

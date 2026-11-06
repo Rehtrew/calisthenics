@@ -11,6 +11,7 @@ import { Button, Icon, IconButton, Stat, TopBar } from '../components/ui'
 import { SessionRow } from '../components/SessionRow'
 import { DayChips } from '../components/DayChips'
 import { StreakCalendar } from '../components/StreakCalendar'
+import { dayName, t } from '../lib/i18n'
 
 /** Remembered across screens so coming back from a preview keeps the chosen day. */
 let rememberedDayId: string | null = null
@@ -47,17 +48,17 @@ export function Home() {
   const sync = useSyncStatus()
   const syncLine =
     sync.state === 'off'
-      ? 'Synkronisering er ikke slået til'
+      ? t('Synkronisering er ikke slået til')
       : sync.state === 'idle' && sync.lastSyncedAt
-        ? `Synkroniseret kl. ${fmtTime(sync.lastSyncedAt)}`
-        : `Synkronisering: ${sync.message.toLowerCase()}`
+        ? t('Synkroniseret kl. {time}', { time: fmtTime(sync.lastSyncedAt) })
+        : t('Synkronisering: {msg}', { msg: sync.message.toLowerCase() })
 
   return (
     <div className="page">
       <TopBar
-        left={<span className="greeting">God træning{s.settings.name ? `, ${s.settings.name}` : ''}!</span>}
+        left={<span className="greeting">{t('God træning{name}!', { name: s.settings.name ? `, ${s.settings.name}` : '' })}</span>}
         right={
-          <IconButton label="Indstillinger" className="plain" onClick={() => navigate({ name: 'settings' })}>
+          <IconButton label={t('Indstillinger')} className="plain" onClick={() => navigate({ name: 'settings' })}>
             {Icon.menu}
           </IconButton>
         }
@@ -65,44 +66,43 @@ export function Home() {
 
       {s.active && (
         <button className="banner" onClick={() => navigate({ name: 'workout' })}>
-          <span>Træning i gang · {s.active.dayLabel}</span>
-          <span>Fortsæt →</span>
+          <span>{t('Træning i gang · {day}', { day: dayName(s.active.dayLabel) })}</span>
+          <span>{t('Fortsæt →')}</span>
         </button>
       )}
 
       <section className="hero">
-        <button className="display level-title" onClick={() => navigate({ name: 'program' })} aria-label={`${level.name} af ${LEVEL_COUNT}, se hele programmet`}>
+        <button className="display level-title" onClick={() => navigate({ name: 'program' })} aria-label={t('{level} af {count}, se hele programmet', { level: level.name, count: LEVEL_COUNT })}>
           {level.name}
         </button>
         <h1 className="display day-title swap" key={selected.id}>
-          {selected.label}
+          {dayName(selected.label)}
         </h1>
         <p className="muted">
-          {exercises.length} øvelser · ca. {minutes} min{selected.focus ? ` · ${selected.focus}` : ''} ·{' '}
+          {t('{n} øvelser · ca. {min} min', { n: exercises.length, min: minutes })}{selected.focus ? ` · ${selected.focus}` : ''} ·{' '}
           <button className="link inline" onClick={() => navigate({ name: 'day', levelIndex, dayId: selected.id })}>
-            Se øvelser →
+            {t('Se øvelser →')}
           </button>
         </p>
 
         <DayChips days={level.days} selectedId={selected.id} nextId={next.id} done={done} selectedIndex={selectedIndex} cols={cols} rows={rows} sessions={s.sessions} levelIndex={levelIndex} onSelect={setSelectedId} />
 
-        <Button onClick={() => navigate({ name: 'setup', dayId: selected.id })}>Start {selected.label}</Button>
+        <Button onClick={() => navigate({ name: 'setup', dayId: selected.id })}>{t('Start {day}', { day: dayName(selected.label) })}</Button>
 
         {last && (
           <p className="muted last-trained">
-            Senest trænet: <strong>{last.dayLabel}</strong>
+            {t('Senest trænet:')} <strong>{dayName(last.dayLabel)}</strong>
             {last.levelIndex !== levelIndex ? ` (Level ${last.levelIndex + 1})` : ''} · {relativeDay(last.endedAt)}
-            {last.status === 'aborted' ? ' · afbrudt' : ''}
+            {last.status === 'aborted' ? t(' · afbrudt') : ''}
           </p>
         )}
         {latestWeight && (
           <button className="link inline muted last-trained" onClick={() => navigate({ name: 'weight' })}>
-            Vægt: <strong>{fmtKg(latestWeight.kg)} kg</strong>
+            {t('Vægt:')} <strong>{fmtKg(latestWeight.kg)} kg</strong>
             {weightDelta != null && (
               <span className={weightDelta < 0 ? 'positive' : ''}>
                 {' '}
-                · {weightDelta > 0 ? '+' : ''}
-                {fmtKg(weightDelta)} kg siden sidst
+                · {t('{delta} kg siden sidst', { delta: (weightDelta > 0 ? '+' : '') + fmtKg(weightDelta) })}
               </span>
             )}
             {' '}· {relativeDay(latestWeight.at)} →
@@ -111,10 +111,10 @@ export function Home() {
       </section>
 
       <section className="stats">
-        <Stat index={0} value={s.sessions.length} label="Træninger i alt" />
-        <Stat index={1} value={countThisMonth(s.sessions)} label="Denne måned" />
-        <Stat index={2} value={avg ?? '–'} unit={avg != null ? '%' : undefined} label="Af programmet nået, seneste 5 træninger" />
-        <Stat index={3} value={atLevel} label={`Gennemført på ${level.name.toLowerCase()}`} />
+        <Stat index={0} value={s.sessions.length} label={t('Træninger i alt')} />
+        <Stat index={1} value={countThisMonth(s.sessions)} label={t('Denne måned')} />
+        <Stat index={2} value={avg ?? '–'} unit={avg != null ? '%' : undefined} label={t('Af programmet nået, seneste 5 træninger')} />
+        <Stat index={3} value={atLevel} label={t('Gennemført på {level}', { level: level.name.toLowerCase() })} />
       </section>
 
       <section className="section">
@@ -123,14 +123,14 @@ export function Home() {
 
       <section className="section">
         <div className="row-head">
-          <p className="eyebrow">Seneste</p>
+          <p className="eyebrow">{t('Seneste')}</p>
           {s.sessions.length > 0 && (
             <button className="link" onClick={() => navigate({ name: 'history' })}>
-              Se alle
+              {t('Se alle')}
             </button>
           )}
         </div>
-        {recent.length === 0 && <p className="muted">Ingen træninger endnu. Start med {next.label}.</p>}
+        {recent.length === 0 && <p className="muted">{t('Ingen træninger endnu. Start med {day}.', { day: dayName(next.label) })}</p>}
         {recent.map((sess, i) => (
           <SessionRow key={sess.id} session={sess} index={i} />
         ))}

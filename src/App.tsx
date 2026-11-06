@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { getLastDirection, useRoute } from './lib/router'
 import { useAppState } from './lib/store'
+import { useLang } from './lib/i18n'
 import { Home } from './views/Home'
 import { Setup } from './views/Setup'
 import { Workout } from './views/Workout'
@@ -15,11 +16,16 @@ import { WeightView } from './views/WeightView'
 export default function App() {
   const route = useRoute()
   const theme = useAppState().settings.theme
+  const lang = useLang()
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0b0b0b' : '#f4f4f2')
   }, [theme])
+
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
 
   const enter = getLastDirection() === 'back' ? 'no-enter' : undefined
   const hasActive = useAppState().active !== null

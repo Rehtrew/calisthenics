@@ -5,6 +5,7 @@ import { fmtDateShort } from '../lib/format'
 import { unitLabel } from '../lib/reps'
 import { BodyFigure } from './body/BodyFigure'
 import { Button, Sheet } from './ui'
+import { t } from '../lib/i18n'
 
 const VIEW_LABEL = { front: 'Forfra', side: 'Fra siden', back: 'Bagfra', frontTorso: 'Forfra', backTorso: 'Bagfra' } as const
 
@@ -26,7 +27,7 @@ export function ExerciseSheet({ name, detail, onClose }: { name: string; detail?
           return (
             <figure key={v} className="figure">
               <BodyFigure view={fv} primary={map.primary} secondary={map.secondary} height={history.length ? 180 : views.length > 1 ? 230 : 280} />
-              <figcaption className="muted small">{VIEW_LABEL[fv]}</figcaption>
+              <figcaption className="muted small">{t(VIEW_LABEL[fv])}</figcaption>
             </figure>
           )
         })}
@@ -34,14 +35,14 @@ export function ExerciseSheet({ name, detail, onClose }: { name: string; detail?
       <dl className="muscle-list">
         <div>
           <dt>
-            <i className="swatch primary" /> Primært
+            <i className="swatch primary" /> {t('Primært')}
           </dt>
           <dd>{map.primary.length ? labelList(map.primary) : '–'}</dd>
         </div>
         {map.secondary.length > 0 && (
           <div>
             <dt>
-              <i className="swatch secondary" /> Sekundært
+              <i className="swatch secondary" /> {t('Sekundært')}
             </dt>
             <dd>{labelList(map.secondary)}</dd>
           </div>
@@ -51,10 +52,10 @@ export function ExerciseSheet({ name, detail, onClose }: { name: string; detail?
       {history.length > 0 && (
         <section className="history">
           <div className="row-head">
-            <p className="eyebrow">Udvikling</p>
+            <p className="eyebrow">{t('Udvikling')}</p>
             {best && (
               <span className="eyebrow">
-                Bedste {best.total} {unitLabel(unit)} · {fmtDateShort(best.at)}
+                {t('Bedste {n} {unit} · {date}', { n: best.total, unit: unitLabel(unit), date: fmtDateShort(best.at) })}
               </span>
             )}
           </div>
@@ -80,7 +81,7 @@ export function ExerciseSheet({ name, detail, onClose }: { name: string; detail?
       )}
 
       <Button variant="secondary" onClick={onClose}>
-        Luk
+        {t('Luk')}
       </Button>
     </Sheet>
   )

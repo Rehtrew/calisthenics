@@ -1,7 +1,7 @@
 {
   "name": "Cali",
   "short_name": "Cali",
-  "description": "Calisthenics træningsprogram",
+  "description": "Calisthenics training program",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0b0b0b",

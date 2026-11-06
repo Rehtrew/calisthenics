@@ -3,8 +3,7 @@ import type { Session } from '../lib/types'
 import { monthCalendar, weekStreak } from '../lib/streak'
 import { cap, fmtMonth } from '../lib/format'
 import { Icon, IconButton } from './ui'
-
-const DOW = ['M', 'T', 'O', 'T', 'F', 'L', 'S']
+import { plural, t } from '../lib/i18n'
 
 const barbell = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
@@ -24,16 +23,17 @@ export function StreakCalendar({ sessions }: { sessions: Session[] }) {
   const month = new Date(now.getFullYear(), now.getMonth() + offset, 1)
   const weeks = monthCalendar(sessions, month)
   const streak = weekStreak(sessions)
+  const DOW = t('M,T,O,T,F,L,S').split(',')
 
   return (
     <div className="cal">
       <div className="cal-head">
         <h2 className="cal-title">{cap(fmtMonth(month.getTime()))}</h2>
         <div className="cal-nav">
-          <IconButton label="Forrige måned" onClick={() => setOffset((o) => o - 1)}>
+          <IconButton label={t('Forrige måned')} onClick={() => setOffset((o) => o - 1)}>
             {Icon.back}
           </IconButton>
-          <IconButton label="Næste måned" disabled={offset >= 0} onClick={() => setOffset((o) => o + 1)}>
+          <IconButton label={t('Næste måned')} disabled={offset >= 0} onClick={() => setOffset((o) => o + 1)}>
             {Icon.forward}
           </IconButton>
         </div>
@@ -41,18 +41,18 @@ export function StreakCalendar({ sessions }: { sessions: Session[] }) {
 
       <div className="cal-stats">
         <div className="cal-stat">
-          <small>Din streak</small>
+          <small>{t('Din streak')}</small>
           <strong>
-            {streak.weeks} {streak.weeks === 1 ? 'uge' : 'uger'}
+            {streak.weeks} {streak.weeks === 1 ? t('uge') : t('uger')}
           </strong>
         </div>
         <div className="cal-stat">
-          <small>Træninger i streaken</small>
+          <small>{t('Træninger i streaken')}</small>
           <strong>{streak.activities}</strong>
         </div>
       </div>
 
-      <div className="cal-grid swap" role="grid" aria-label="Træningskalender" key={`${month.getFullYear()}-${month.getMonth()}`}>
+      <div className="cal-grid swap" role="grid" aria-label={t('Træningskalender')} key={`${month.getFullYear()}-${month.getMonth()}`}>
         {DOW.map((d, i) => (
           <span key={i} className="cal-dow">
             {d}
@@ -89,7 +89,7 @@ function WeekRow({
           <span
             key={d.key}
             className={`cal-day ${d.inMonth ? '' : 'out'} ${d.trained ? 'on pop' : ''} ${d.future ? 'future' : ''} ${d.today ? 'today' : ''}`}
-            title={d.trained ? `${d.trained} træning${d.trained > 1 ? 'er' : ''}` : undefined}
+            title={d.trained ? plural(d.trained, '{n} træning', '{n} træninger') : undefined}
             style={{ gridRow: row, '--i': i } as CSSProperties}
           >
             {d.trained ? barbell : d.dayOfMonth}

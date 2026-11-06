@@ -87,6 +87,8 @@ export interface Settings {
   weightKg: number
   /** first name for the greeting; empty means no name */
   name: string
+  /** UI language; Danish is the source, English a translation */
+  lang: 'da' | 'en'
 }
 
 export interface AppState {

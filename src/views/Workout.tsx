@@ -7,7 +7,8 @@ import { fmtClock, fmtDuration } from '../lib/format'
 import { beep, buzz, primeAudio, useNow, useWakeLock, useWindowHeight } from '../lib/device'
 import type { ActiveWorkout, SetLog, SetTarget } from '../lib/types'
 import { Button, Icon, IconButton, Sheet } from '../components/ui'
-import { figureView, labelList, musclesFor, viewsFor, MUSCLE_LABEL } from '../lib/muscles'
+import { figureView, labelList, muscleLabel, musclesFor, viewsFor } from '../lib/muscles'
+import { t } from '../lib/i18n'
 import { parseReps as targetFor, unitLabel as unitOf } from '../lib/reps'
 import { BodyFigure } from '../components/body/BodyFigure'
 import { ExerciseSheet } from '../components/ExerciseSheet'
@@ -29,12 +30,12 @@ export function Workout() {
   // During rest the upcoming set is the current position; during a set it is the one after.
   const upNext: UpNext =
     a.phase === 'rest'
-      ? { name: ex.name, detail: `sæt ${a.setIndex + 1} af ${ex.sets}` }
+      ? { name: ex.name, detail: t('sæt {i} af {n}', { i: a.setIndex + 1, n: ex.sets }) }
       : !lastSetOfExercise
-        ? { name: ex.name, detail: `sæt ${a.setIndex + 2} af ${ex.sets}` }
+        ? { name: ex.name, detail: t('sæt {i} af {n}', { i: a.setIndex + 2, n: ex.sets }) }
         : nextEx
           ? { name: nextEx.name, detail: `${nextEx.sets} × ${nextEx.reps.toLowerCase()}` }
-          : { name: 'Sidste sæt', detail: 'så er du færdig' }
+          : { name: t('Sidste sæt'), detail: t('så er du færdig') }
 
   const lastLogs = lastExerciseLogs(s.sessions, ex.name)
   const lastTime = lastLogs?.[a.setIndex]
@@ -58,7 +59,7 @@ export function Workout() {
       <header className="topbar workout-bar">
         <div className="workout-bar-left">
           <IconButton
-            label={doneSets === 0 ? 'Afbryd træningen' : 'Tilbage til forrige sæt'}
+            label={doneSets === 0 ? t('Afbryd træningen') : t('Tilbage til forrige sæt')}
             className="plain back-set"
             onClick={() => (doneSets === 0 ? setAbort(true) : undoLastSet())}
           >
@@ -66,18 +67,18 @@ export function Workout() {
           </IconButton>
           <div>
             <span className="eyebrow">
-              Øvelse {a.exerciseIndex + 1} af {a.exercises.length}
+              {t('Øvelse {i} af {n}', { i: a.exerciseIndex + 1, n: a.exercises.length })}
             </span>
-            <div className="elapsed" aria-label="Tid i gang">
+            <div className="elapsed" aria-label={t('Tid i gang')}>
               {fmtDuration(now - a.startedAt)}
             </div>
           </div>
         </div>
         <button className="link eyebrow" onClick={() => setAbort(true)}>
-          Afbryd
+          {t('Afbryd')}
         </button>
       </header>
-      <div className="progress" aria-label={`${doneSets} af ${totalSets} sæt`}>
+      <div className="progress" aria-label={t('{done} af {total} sæt', { done: doneSets, total: totalSets })}>
         <span style={{ width: `${(100 * doneSets) / totalSets}%` }} />
       </div>
       {a.phase === 'rest' && <RestClock key={a.restEndsAt ?? 0} active={a} />}
@@ -101,12 +102,12 @@ export function Workout() {
 
       {abort && (
         <Sheet
-          title="Afbryd træningen?"
-          text={doneSets === 0 ? 'Du har ikke logget noget endnu, så intet bliver gemt.' : `De ${doneSets} sæt du har lavet bliver gemt som en afbrudt træning.`}
+          title={t('Afbryd træningen?')}
+          text={doneSets === 0 ? t('Du har ikke logget noget endnu, så intet bliver gemt.') : t('De {n} sæt du har lavet bliver gemt som en afbrudt træning.', { n: doneSets })}
         >
-          <Button onClick={onAbort}>Ja, afbryd</Button>
+          <Button onClick={onAbort}>{t('Ja, afbryd')}</Button>
           <Button variant="secondary" onClick={() => setAbort(false)}>
-            Fortsæt træningen
+            {t('Fortsæt træningen')}
           </Button>
         </Sheet>
       )}
@@ -149,9 +150,9 @@ function SetPanel({
     <>
       <div className="screen-main">
         <p className="eyebrow rise" style={{ '--i': 0 } as CSSProperties}>
-          Sæt {a.setIndex + 1} af {ex.sets}
+          {t('Sæt {i} af {n}', { i: a.setIndex + 1, n: ex.sets })}
         </p>
-        <button className="exercise-title-btn rise" style={{ '--i': 1 } as CSSProperties} onClick={onShowMuscles} aria-label={`${ex.name}, vis muskler`}>
+        <button className="exercise-title-btn rise" style={{ '--i': 1 } as CSSProperties} onClick={onShowMuscles} aria-label={t('{name}, vis muskler', { name: ex.name })}>
           <h1 className="exercise-title">{ex.name}</h1>
         </button>
 
@@ -166,19 +167,19 @@ function SetPanel({
                 {target.hint ? ` · ${target.hint}` : ''}
               </p>
             </div>
-            <button className="figure-btn rise" style={{ '--i': 3 } as CSSProperties} onClick={onShowMuscles} aria-label="Vis muskelgrupper">
+            <button className="figure-btn rise" style={{ '--i': 3 } as CSSProperties} onClick={onShowMuscles} aria-label={t('Vis muskelgrupper')}>
               <BodyFigure view={view} primary={muscles.primary} secondary={muscles.secondary} height={figureHeight} />
             </button>
           </div>
         ) : (
           <>
-            <p className="eyebrow">{target.isMax ? 'Max – hvor mange nåede du?' : `Hvor mange nåede du af ${target.value}?`}</p>
+            <p className="eyebrow">{target.isMax ? t('Max – hvor mange nåede du?') : t('Hvor mange nåede du af {n}?', { n: target.value ?? 0 })}</p>
             <div className="big-stepper">
-              <IconButton label="Færre" disabled={count <= 0} onClick={() => setCount((c) => Math.max(0, c - 1))}>
+              <IconButton label={t('Færre')} disabled={count <= 0} onClick={() => setCount((c) => Math.max(0, c - 1))}>
                 {Icon.minus}
               </IconButton>
               <span className="value">{count}</span>
-              <IconButton label="Flere" onClick={() => setCount((c) => c + 1)}>
+              <IconButton label={t('Flere')} onClick={() => setCount((c) => c + 1)}>
                 {Icon.plus}
               </IconButton>
             </div>
@@ -187,7 +188,7 @@ function SetPanel({
         )}
         {lastLogs && lastLogs.length > 0 && (
           <p className="last-time rise" style={{ '--i': 4 } as CSSProperties}>
-            Sidste gang:{' '}
+            {t('Sidste gang:')}{' '}
             {lastLogs.map((l, i) => (
               <span key={i} className={i === a.setIndex ? 'now' : ''}>
                 {i > 0 && <span className="muted"> · </span>}
@@ -197,15 +198,15 @@ function SetPanel({
             <span className="muted"> {unitLabel(lastLogs[0].unit)}</span>
           </p>
         )}
-        <ul className="tags rise" style={{ '--i': 5 } as CSSProperties} aria-label={`Muskler: ${labelList(muscles.primary)}`}>
+        <ul className="tags rise" style={{ '--i': 5 } as CSSProperties} aria-label={t('Muskler: {list}', { list: labelList(muscles.primary) })}>
           {muscles.primary.map((m) => (
             <li key={m} className="tag">
-              {MUSCLE_LABEL[m]}
+              {muscleLabel(m)}
             </li>
           ))}
           {muscles.secondary.map((m) => (
             <li key={m} className="tag secondary">
-              {MUSCLE_LABEL[m]}
+              {muscleLabel(m)}
             </li>
           ))}
         </ul>
@@ -220,7 +221,7 @@ function SetPanel({
                 onLog(null, true)
               }}
             >
-              Nåede alle {target.value} {unitLabel(target.unit)}
+              {t('Nåede alle {n} {unit}', { n: target.value ?? '', unit: unitLabel(target.unit) })}
             </Button>
             <Button
               variant="secondary"
@@ -229,7 +230,7 @@ function SetPanel({
                 setMode('count')
               }}
             >
-              Færre
+              {t('Færre')}
             </Button>
           </>
         ) : (
@@ -240,11 +241,11 @@ function SetPanel({
                 onLog(count, target.isMax)
               }}
             >
-              Log {count} {unitLabel(target.unit)}
+              {t('Log {n} {unit}', { n: count, unit: unitLabel(target.unit) })}
             </Button>
             {!target.isMax && (
               <Button variant="ghost" onClick={() => setMode('ask')}>
-                Annuller
+                {t('Annuller')}
               </Button>
             )}
           </>
@@ -271,7 +272,7 @@ function RestClock({ active: a }: { active: ActiveWorkout }) {
   return (
     <div className="rest-head">
       <p className="eyebrow rise" style={{ '--i': 0 } as CSSProperties}>
-        Pause
+        {t('Pause')}
       </p>
       <div className="target rest-clock rise" style={{ '--i': 1 } as CSSProperties}>
         {fmtClock(Math.ceil(remainingMs / 1000))}
@@ -286,12 +287,12 @@ function RestClock({ active: a }: { active: ActiveWorkout }) {
 function RestList({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNext }) {
   const upcoming = upcomingSets(a, 40)
   const sameExercise = upcoming[0] && upcoming[0].exerciseIndex === a.exerciseIndex && a.setIndex > 0
-  const cta = sameExercise ? `Start sæt ${a.setIndex + 1} af ${a.exercises[a.exerciseIndex].sets}` : 'Start næste øvelse'
+  const cta = sameExercise ? t('Start sæt {i} af {n}', { i: a.setIndex + 1, n: a.exercises[a.exerciseIndex].sets }) : t('Start næste øvelse')
 
   return (
     <>
       <div className="screen-main rest-main">
-        <ul className="up-next rise" style={{ '--i': 2 } as CSSProperties} aria-label={`Næste: ${upNext.name} · ${upNext.detail}`}>
+        <ul className="up-next rise" style={{ '--i': 2 } as CSSProperties} aria-label={t('Næste: {name} · {detail}', { name: upNext.name, detail: upNext.detail })}>
           {upcoming.map((u, i) => (
             <UpcomingRow key={`${u.exerciseIndex}-${u.setIndex}`} item={u} first={i === 0} />
           ))}
@@ -301,7 +302,7 @@ function RestList({ active: a, upNext }: { active: ActiveWorkout; upNext: UpNext
         <div>
           <Button onClick={finishRest}>{cta}</Button>
           <Button variant="secondary" onClick={() => extendRest(30)}>
-            +30 sekunders pause
+            {t('+30 sekunders pause')}
           </Button>
         </div>
       </div>
@@ -332,14 +333,14 @@ function upcomingSets(a: ActiveWorkout, limit: number): Upcoming[] {
 function UpcomingRow({ item, first }: { item: Upcoming; first: boolean }) {
   const muscles = musclesFor(item.name)
   const view = figureView(viewsFor(muscles)[0], muscles)
-  const t = targetFor(item.reps, item.setIndex)
+  const tg = targetFor(item.reps, item.setIndex)
   return (
     <li className={`up-row ${first ? 'first' : ''}`}>
       <div className="up-row-text">
-        {first && <span className="eyebrow accent">Næste</span>}
+        {first && <span className="eyebrow accent">{t('Næste')}</span>}
         <span className="up-row-name">{item.name}</span>
         <span className="up-row-sub">
-          Sæt {item.setIndex + 1} af {item.sets} · {t.isMax ? 'max' : `${t.value} ${unitOf(t.unit)}`}
+          {t('Sæt {i} af {n}', { i: item.setIndex + 1, n: item.sets })} · {tg.isMax ? 'max' : `${tg.value} ${unitOf(tg.unit)}`}
         </span>
       </div>
       <BodyFigure view={view} primary={muscles.primary} secondary={muscles.secondary} height={64} />

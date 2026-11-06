@@ -4,6 +4,7 @@ import { navigate } from '../lib/router'
 import { levels } from '../data/programs'
 import { BackButton, TopBar } from '../components/ui'
 import { LevelGrid } from '../components/LevelGrid'
+import { dayName, t } from '../lib/i18n'
 
 export function ProgramOverview() {
   const s = useAppState()
@@ -12,10 +13,10 @@ export function ProgramOverview() {
     <div className="page">
       <TopBar left={<BackButton />} />
       <section className="hero">
-        <p className="eyebrow">Programmet</p>
-        <h1 className="title">Alle {levels.length} levels</h1>
+        <p className="eyebrow">{t('Programmet')}</p>
+        <h1 className="title">{t('Alle {n} levels', { n: levels.length })}</h1>
         <p className="muted" style={{ marginTop: 8 }}>
-          Vælg dit level her, eller tryk på en dag for at se øvelserne. Du kan også starte en dag fra et andet level.
+          {t('Vælg dit level her, eller tryk på en dag for at se øvelserne. Du kan også starte en dag fra et andet level.')}
         </p>
         <div style={{ marginTop: 20 }}>
           <LevelGrid value={s.settings.levelIndex} onChange={(levelIndex) => updateSettings({ levelIndex })} />
@@ -30,17 +31,17 @@ export function ProgramOverview() {
             <div className="row-head">
               <p className={`eyebrow ${current ? 'accent' : ''}`}>
                 {level.name}
-                {current ? ' · Nuværende' : ''}
+                {current ? t(' · Nuværende') : ''}
               </p>
               <span className="eyebrow">
-                {level.days.length} dage{done ? ` · ${done} gennemført` : ''}
+                {t('{n} dage', { n: level.days.length })}{done ? t(' · {n} gennemført', { n: done }) : ''}
               </span>
             </div>
             {level.days.map((d) => (
               <button key={d.id} className="row" onClick={() => navigate({ name: 'day', levelIndex: li, dayId: d.id })}>
                 <span className="row-main">
                   <span className="row-title">
-                    {d.label}
+                    {dayName(d.label)}
                     {d.focus ? ` · ${d.focus}` : ''}
                   </span>
                   <span className="row-sub">
@@ -51,7 +52,7 @@ export function ProgramOverview() {
                     {d.exercises.length > 3 ? ` +${d.exercises.length - 3}` : ''}
                   </span>
                 </span>
-                <span className="row-value small muted">{d.exercises.length} øvelser</span>
+                <span className="row-value small muted">{t('{n} øvelser', { n: d.exercises.length })}</span>
               </button>
             ))}
           </section>

@@ -9,6 +9,7 @@ import { BackButton, Button, TopBar } from '../components/ui'
 import { labelList, musclesFor } from '../lib/muscles'
 import { ExerciseSheet } from '../components/ExerciseSheet'
 import { DEFAULT_REST_SECONDS } from '../lib/defaults'
+import { dayName, plural, t } from '../lib/i18n'
 
 export function DayPreview({ levelIndex, dayId }: { levelIndex: number; dayId: string }) {
   const s = useAppState()
@@ -43,19 +44,19 @@ export function DayPreview({ levelIndex, dayId }: { levelIndex: number; dayId: s
 
       <section className="hero">
         <p className="eyebrow">
-          {isCurrent ? 'Dit nuværende level' : level.name}
+          {isCurrent ? t('Dit nuværende level') : level.name}
           {day.focus ? ` · ${day.focus}` : ''}
         </p>
-        <h1 className="display day-title">{day.label}</h1>
+        <h1 className="display day-title">{dayName(day.label)}</h1>
         <p className="muted">
-          {day.exercises.length} øvelser · {totalSets} sæt · ca. {minutes} min
-          {legs ? ` · ${legs} benøvelse${legs > 1 ? 'r' : ''}` : ''}
-          {last ? ` · Sidst ${relativeDay(last.endedAt)}` : ''}
+          {t('{n} øvelser · {sets} sæt · ca. {min} min', { n: day.exercises.length, sets: totalSets, min: minutes })}
+          {legs ? plural(legs, ' · {n} benøvelse', ' · {n} benøvelser') : ''}
+          {last ? t(' · Sidst {when}', { when: relativeDay(last.endedAt) }) : ''}
         </p>
       </section>
 
       <section className="section">
-        <p className="eyebrow">Øvelser</p>
+        <p className="eyebrow">{t('Øvelser')}</p>
         <ol className="exercise-list">
           {day.exercises.map((e, i) => {
             const logs = last?.exercises.find((x) => x.name === e.name)?.logs
@@ -65,7 +66,7 @@ export function DayPreview({ levelIndex, dayId }: { levelIndex: number; dayId: s
                   <span className="exercise-name">{e.name}</span>
                   <span className="exercise-sub">
                     {e.sets} × {e.reps.toLowerCase()} · {labelList(musclesFor(e.name).primary)}
-                    {logs?.length ? ` · Sidst ${logs.map((l) => l.achieved ?? '✓').join(' · ')}` : ''}
+                    {logs?.length ? t(' · Sidst {when}', { when: logs.map((l) => l.achieved ?? '✓').join(' · ') }) : ''}
                   </span>
                 </button>
                 <span className="exercise-index">{i + 1}</span>
@@ -76,7 +77,7 @@ export function DayPreview({ levelIndex, dayId }: { levelIndex: number; dayId: s
       </section>
 
       <div className="cta-bar">
-        <Button onClick={start}>{isCurrent ? `Start ${day.label}` : `Skift til ${level.name} og start`}</Button>
+        <Button onClick={start}>{isCurrent ? t('Start {day}', { day: dayName(day.label) }) : t('Skift til {level} og start', { level: level.name })}</Button>
       </div>
 
       {open && <ExerciseSheet name={open.name} detail={open.detail} onClose={() => setOpen(null)} />}

@@ -7,6 +7,7 @@ import { energy } from '../lib/energy'
 import type { ExerciseLog } from '../lib/types'
 import { BackButton, Button, Sheet, Stat, TopBar } from '../components/ui'
 import { WeightPicker } from '../components/WeightPicker'
+import { dayName, t } from '../lib/i18n'
 
 export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'summary' | 'detail' }) {
   const s = useAppState()
@@ -34,12 +35,12 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
 
   let compare: string
   let compareClass = 'muted'
-  if (!prev || !prevScore) compare = 'Første gang på denne dag'
+  if (!prev || !prevScore) compare = t('Første gang på denne dag')
   else {
     const dPct = score.pct - prevScore.pct
     const dReps = score.reps - prevScore.reps
     const sign = (n: number) => (n > 0 ? '+' : '')
-    compare = `${sign(dPct)}${dPct} point og ${sign(dReps)}${dReps} reps i forhold til sidst`
+    compare = t('{dp} point og {dr} reps i forhold til sidst', { dp: `${sign(dPct)}${dPct}`, dr: `${sign(dReps)}${dReps}` })
     compareClass = dReps > 0 || dPct > 0 ? 'positive' : 'muted'
   }
 
@@ -50,7 +51,7 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
         right={
           mode === 'detail' ? (
             <button className="link" onClick={() => setConfirm(true)}>
-              Slet
+              {t('Slet')}
             </button>
           ) : null
         }
@@ -58,42 +59,42 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
 
       <section className="hero">
         <p className="eyebrow">
-          {completed ? 'Træning færdig' : 'Træning afbrudt'} · {fmtDateLong(session.endedAt)}
+          {completed ? t('Træning færdig') : t('Træning afbrudt')} · {fmtDateLong(session.endedAt)}
         </p>
         <h1 className="display">
           {score.pct}
           <span className="display-unit">%</span>
         </h1>
         <p className="muted">
-          Af programmet · {session.dayLabel} · Level {session.levelIndex + 1}
+          {t('Af programmet · {day} · Level {n}', { day: dayName(session.dayLabel), n: session.levelIndex + 1 })}
         </p>
       </section>
 
       <section className="stats">
-        <Stat index={0} value={fmtDuration(session.endedAt - session.startedAt)} label="Varighed" />
-        <Stat index={1} value={`${score.setsDone}/${score.setsPlanned}`} label="Sæt" />
-        <Stat index={2} value={score.reps} label="Reps i alt" />
-        <Stat index={3} value={kcal} unit="kcal" label={`Cirka, ved ${s.settings.weightKg} kg`} />
+        <Stat index={0} value={fmtDuration(session.endedAt - session.startedAt)} label={t('Varighed')} />
+        <Stat index={1} value={`${score.setsDone}/${score.setsPlanned}`} label={t('Sæt')} />
+        <Stat index={2} value={score.reps} label={t('Reps i alt')} />
+        <Stat index={3} value={kcal} unit="kcal" label={t('Cirka, ved {kg} kg', { kg: s.settings.weightKg })} />
       </section>
 
       <p className={`compare ${compareClass}`}>{compare}</p>
 
       <button className="row weight-row" onClick={openWeight}>
         <span className="row-main">
-          <span className="row-title">Vægt efter træning</span>
+          <span className="row-title">{t('Vægt efter træning')}</span>
           <span className="row-sub">
             {session.weightKg != null
               ? weightDelta != null
-                ? `${weightDelta > 0 ? '+' : ''}${fmtKg(weightDelta)} kg siden ${fmtKg(earlierWeight!.kg)} kg`
-                : 'Første loggede vægt'
-              : 'Ikke logget · tryk for at logge'}
+                ? t('{delta} kg siden {prev} kg', { delta: `${weightDelta > 0 ? '+' : ''}${fmtKg(weightDelta)}`, prev: fmtKg(earlierWeight!.kg) })
+                : t('Første loggede vægt')
+              : t('Ikke logget · tryk for at logge')}
           </span>
         </span>
         <span className="row-value">{session.weightKg != null ? `${fmtKg(session.weightKg)} kg` : <span className="muted">Log</span>}</span>
       </button>
 
       <section className="section">
-        <p className="eyebrow">Øvelser</p>
+        <p className="eyebrow">{t('Øvelser')}</p>
         <ul className="result-list">
           {session.exercises.map((ex, i) => (
             <ExerciseResult key={i} ex={ex} prev={prev?.exercises.find((p) => p.name === ex.name)} />
@@ -103,12 +104,12 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
 
       {mode === 'summary' && (
         <div className="cta-bar">
-          <Button onClick={() => navigate({ name: 'home' }, { replace: true })}>Til forsiden</Button>
+          <Button onClick={() => navigate({ name: 'home' }, { replace: true })}>{t('Til forsiden')}</Button>
         </div>
       )}
 
       {editWeight && draftWeight != null && (
-        <Sheet title={session.weightKg != null ? 'Ret vægt' : 'Log vægt'} text={`Vægt efter ${session.dayLabel} · ${fmtDateLong(session.endedAt)}`}>
+        <Sheet title={session.weightKg != null ? t('Ret vægt') : t('Log vægt')} text={t('Vægt efter {day} · {date}', { day: dayName(session.dayLabel), date: fmtDateLong(session.endedAt) })}>
           <WeightPicker value={draftWeight} onChange={setDraftWeight} />
           <Button
             onClick={() => {
@@ -116,7 +117,7 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
               setEditWeight(false)
             }}
           >
-            Gem {fmtKg(draftWeight)} kg
+            {t('Gem {kg} kg', { kg: fmtKg(draftWeight) })}
           </Button>
           {session.weightKg != null && (
             <Button
@@ -126,27 +127,27 @@ export function SessionView({ sessionId, mode }: { sessionId: string; mode: 'sum
                 setEditWeight(false)
               }}
             >
-              Fjern vægten
+              {t('Fjern vægten')}
             </Button>
           )}
           <Button variant="secondary" onClick={() => setEditWeight(false)}>
-            Annuller
+            {t('Annuller')}
           </Button>
         </Sheet>
       )}
 
       {confirm && (
-        <Sheet title="Slet træningen?" text="Den forsvinder fra historikken og statistikken.">
+        <Sheet title={t('Slet træningen?')} text={t('Den forsvinder fra historikken og statistikken.')}>
           <Button
             onClick={() => {
               deleteSession(session.id)
               navigate({ name: 'home' }, { replace: true })
             }}
           >
-            Ja, slet
+            {t('Ja, slet')}
           </Button>
           <Button variant="secondary" onClick={() => setConfirm(false)}>
-            Behold
+            {t('Behold')}
           </Button>
         </Sheet>
       )}
@@ -171,7 +172,7 @@ function ExerciseResult({ ex, prev }: { ex: ExerciseLog; prev: ExerciseLog | und
               {delta}{' '}
             </span>
           )}
-          {score.setsDone}/{ex.sets} sæt
+          {t('{done}/{n} sæt', { done: score.setsDone, n: ex.sets })}
         </span>
       </div>
       <div className="result-sets">
@@ -180,7 +181,7 @@ function ExerciseResult({ ex, prev }: { ex: ExerciseLog; prev: ExerciseLog | und
           if (!log) return <span key={i} className="set-pill missing">–</span>
           const value = log.achieved ?? (log.full ? '✓' : '–')
           return (
-            <span key={i} className={`set-pill ${log.full ? '' : 'short'}`} title={log.target != null ? `Mål: ${log.target}` : undefined}>
+            <span key={i} className={`set-pill ${log.full ? '' : 'short'}`} title={log.target != null ? t('Mål: {n}', { n: log.target }) : undefined}>
               {value}
               {unit === 's' && typeof value === 'number' ? 's' : ''}
             </span>

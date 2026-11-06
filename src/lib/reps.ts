@@ -1,4 +1,5 @@
 import type { SetTarget, Unit } from './types'
+import { t as tr } from './i18n'
 
 const t = (value: number | null, unit: Unit, label: string, hint: string | null, isMax = false): SetTarget => ({
   value,
@@ -44,6 +45,6 @@ export function parseReps(reps: string, setIndex = 0): SetTarget {
   return t(null, 'reps', raw, null, true)
 }
 
-export const unitLabel = (unit: Unit): string => (unit === 's' ? 'sek' : unit === 'min' ? 'min' : 'reps')
+export const unitLabel = (unit: Unit): string => (unit === 's' ? tr('sek') : unit === 'min' ? 'min' : 'reps')
 
 export const isLegs = (name: string): boolean => /squat|lunge|hiptrust|calf raise/i.test(name)

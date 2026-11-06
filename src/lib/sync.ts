@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { applyRemoteState, getState, normalize, onLocalChange } from './store'
 import { fingerprint, mergeStates } from './merge'
+import { t } from './i18n'
 
 const SECRET_KEY = 'calisthenics:sync-secret'
 const ENDPOINT = '/api/state'
@@ -21,8 +22,8 @@ function readSecret(): string {
 
 let secret = readSecret()
 let status: SyncStatus = secret
-  ? { state: 'idle', message: 'Ikke synkroniseret endnu', lastSyncedAt: null }
-  : { state: 'off', message: 'Ikke slået til', lastSyncedAt: null }
+  ? { state: 'idle', message: t('Ikke synkroniseret endnu'), lastSyncedAt: null }
+  : { state: 'off', message: t('Ikke slået til'), lastSyncedAt: null }
 const listeners = new Set<() => void>()
 
 function setStatus(patch: Partial<SyncStatus>) {
@@ -54,10 +55,10 @@ export function setSyncSecret(next: string) {
     /* ignore */
   }
   if (secret) {
-    setStatus({ state: 'idle', message: 'Ikke synkroniseret endnu', lastSyncedAt: null })
+    setStatus({ state: 'idle', message: t('Ikke synkroniseret endnu'), lastSyncedAt: null })
     void syncNow()
   } else {
-    setStatus({ state: 'off', message: 'Ikke slået til', lastSyncedAt: null })
+    setStatus({ state: 'off', message: t('Ikke slået til'), lastSyncedAt: null })
   }
 }
 
@@ -73,15 +74,15 @@ function request(method: 'GET' | 'PUT', body?: string) {
 async function run(): Promise<void> {
   if (!secret) return
   if (!navigator.onLine) {
-    setStatus({ state: 'error', message: 'Offline, gemmer lokalt indtil videre' })
+    setStatus({ state: 'error', message: t('Offline, gemmer lokalt indtil videre') })
     return
   }
-  setStatus({ state: 'syncing', message: 'Synkroniserer…' })
+  setStatus({ state: 'syncing', message: t('Synkroniserer…') })
   try {
     const res = await request('GET')
-    if (res.status === 401) return setStatus({ state: 'error', message: 'Forkert sync-kode' })
-    if (res.status === 503) return setStatus({ state: 'error', message: 'Serveren mangler opsætning (database eller APP_SECRET)' })
-    if (res.status !== 200 && res.status !== 404) return setStatus({ state: 'error', message: `Serverfejl ${res.status}` })
+    if (res.status === 401) return setStatus({ state: 'error', message: t('Forkert sync-kode') })
+    if (res.status === 503) return setStatus({ state: 'error', message: t('Serveren mangler opsætning (database eller APP_SECRET)') })
+    if (res.status !== 200 && res.status !== 404) return setStatus({ state: 'error', message: t('Serverfejl {n}', { n: res.status }) })
 
     const remote = res.status === 404 ? null : normalize(await res.json())
     const local = getState()
@@ -90,16 +91,16 @@ async function run(): Promise<void> {
     if (!remote || fingerprint(merged) !== fingerprint(remote) || merged.updatedAt > remote.updatedAt) {
       const toPush = { ...merged, updatedAt: Math.max(merged.updatedAt, Date.now()) }
       const put = await request('PUT', JSON.stringify(toPush))
-      if (put.status === 401) return setStatus({ state: 'error', message: 'Forkert sync-kode' })
-      if (!put.ok) return setStatus({ state: 'error', message: `Kunne ikke gemme (${put.status})` })
+      if (put.status === 401) return setStatus({ state: 'error', message: t('Forkert sync-kode') })
+      if (!put.ok) return setStatus({ state: 'error', message: t('Kunne ikke gemme ({n})', { n: put.status }) })
       if (fingerprint(toPush) !== fingerprint(getState())) applyRemoteState(toPush)
       else applyRemoteState({ ...getState(), updatedAt: toPush.updatedAt })
     } else if (fingerprint(merged) !== fingerprint(local) || merged.updatedAt !== local.updatedAt) {
       applyRemoteState(merged)
     }
-    setStatus({ state: 'idle', message: 'Synkroniseret', lastSyncedAt: Date.now() })
+    setStatus({ state: 'idle', message: t('Synkroniseret'), lastSyncedAt: Date.now() })
   } catch {
-    setStatus({ state: 'error', message: 'Kunne ikke nå serveren' })
+    setStatus({ state: 'error', message: t('Kunne ikke nå serveren') })
   }
 }
 

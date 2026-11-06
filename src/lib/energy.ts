@@ -1,4 +1,5 @@
 import type { Session } from './types'
+import { decimal, plural, t } from './i18n'
 
 /**
  * Rough energy estimate using MET values from the Compendium of Physical
@@ -68,8 +69,8 @@ export function tonnage(session: Pick<Session, 'exercises'>, weightKg: number): 
   return Math.round(kg)
 }
 
-/** Danish decimal formatting with a fixed number of digits. */
-const da = (n: number, digits = 1) => String(Math.round(n * 10 ** digits) / 10 ** digits).replace('.', ',')
+/** Decimal formatting in the current language with a fixed number of digits. */
+const da = (n: number, digits = 1) => decimal(n, digits)
 /** Like da, but whole numbers once the value is 10 or more ("3,5 bananer", "27 bananer"). */
 const smart = (n: number, digits = 1) => da(n, n >= 10 ? 0 : digits)
 
@@ -82,12 +83,12 @@ function hash(seed: string): number {
 /** A playful equivalent for a number of kcal, picked deterministically by seed. */
 export function funFact(kcal: number, weightKg: number, seed: string): string {
   const facts: (() => string)[] = [
-    () => `${smart(kcal / 105)} bananer`,
-    () => `en gåtur på ${smart(kcal / (0.7 * weightKg))} km`,
-    () => `${smart(kcal / 140)} pilsnere`,
-    () => `${smart(kcal / 30, 0)} stykker chokolade`,
-    () => `${smart((kcal * 60) / (6 * weightKg), 0)} minutter på cykel`,
-    () => `${smart(kcal / 270)} cheeseburgere`,
+    () => t('{n} bananer', { n: smart(kcal / 105) }),
+    () => t('en gåtur på {n} km', { n: smart(kcal / (0.7 * weightKg)) }),
+    () => t('{n} pilsnere', { n: smart(kcal / 140) }),
+    () => t('{n} stykker chokolade', { n: smart(kcal / 30, 0) }),
+    () => t('{n} minutter på cykel', { n: smart((kcal * 60) / (6 * weightKg), 0) }),
+    () => t('{n} cheeseburgere', { n: smart(kcal / 270) }),
   ]
   return facts[hash(seed) % facts.length]()
 }
@@ -95,11 +96,11 @@ export function funFact(kcal: number, weightKg: number, seed: string): string {
 export function durationWords(seconds: number): string {
   const h = Math.floor(seconds / 3600)
   const m = Math.round((seconds % 3600) / 60)
-  if (h) return `${h} t ${m} min`
-  return `${m} minut${m === 1 ? '' : 'ter'}`
+  if (h) return t('{h} t {m} min', { h, m })
+  return plural(m, '{n} minut', '{n} minutter')
 }
 
 export function formatKg(kg: number): { value: string; unit: string } {
-  if (kg >= 1000) return { value: da(kg / 1000), unit: 'ton' }
+  if (kg >= 1000) return { value: da(kg / 1000), unit: t('ton') }
   return { value: String(kg), unit: 'kg' }
 }

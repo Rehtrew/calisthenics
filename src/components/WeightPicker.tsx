@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { fmtKg, parseKg } from '../lib/format'
 import { Icon, IconButton } from './ui'
+import { t } from '../lib/i18n'
 
 /** Big editable weight with 0,1 kg steps. Typing is allowed too (comma or dot). */
 export function WeightPicker({ value, onChange }: { value: number; onChange: (kg: number) => void }) {
@@ -22,7 +23,7 @@ export function WeightPicker({ value, onChange }: { value: number; onChange: (kg
 
   return (
     <div className="weight-picker">
-      <IconButton label="0,1 kg mindre" onClick={() => step(-0.1)}>
+      <IconButton label={t('0,1 kg mindre')} onClick={() => step(-0.1)}>
         {Icon.minus}
       </IconButton>
       <label className="weight-field">
@@ -31,7 +32,7 @@ export function WeightPicker({ value, onChange }: { value: number; onChange: (kg
           type="text"
           inputMode="decimal"
           autoComplete="off"
-          aria-label="Vægt i kilo"
+          aria-label={t('Vægt i kilo')}
           value={editing ? text : fmtKg(value)}
           onFocus={(e) => {
             setEditing(true)
@@ -47,7 +48,7 @@ export function WeightPicker({ value, onChange }: { value: number; onChange: (kg
         />
         <span className="weight-unit">kg</span>
       </label>
-      <IconButton label="0,1 kg mere" onClick={() => step(0.1)}>
+      <IconButton label={t('0,1 kg mere')} onClick={() => step(0.1)}>
         {Icon.plus}
       </IconButton>
     </div>

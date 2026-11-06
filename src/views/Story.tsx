@@ -6,6 +6,7 @@ import { weightLog } from '../lib/stats'
 import { fmtKg, relativeDay } from '../lib/format'
 import { Button, Icon, IconButton } from '../components/ui'
 import { WeightPicker } from '../components/WeightPicker'
+import { t } from '../lib/i18n'
 
 export function Story({ sessionId }: { sessionId: string }) {
   const s = useAppState()
@@ -46,7 +47,7 @@ export function Story({ sessionId }: { sessionId: string }) {
   const slide = slides[Math.min(index, slides.length - 1)]
 
   return (
-    <div className="story" role="dialog" aria-label="Opsummering">
+    <div className="story" role="dialog" aria-label={t('Opsummering')}>
       <div className="story-bars" aria-hidden="true">
         {Array.from({ length: total }, (_, k) => (
           <span key={k} className={k <= index ? 'on' : ''} />
@@ -54,9 +55,9 @@ export function Story({ sessionId }: { sessionId: string }) {
       </div>
       <header className="story-head">
         <span className="eyebrow">
-          {session.status === 'completed' ? 'Træning færdig' : 'Træning afbrudt'} · {relativeDay(session.endedAt)}
+          {session.status === 'completed' ? t('Træning færdig') : t('Træning afbrudt')} · {relativeDay(session.endedAt)}
         </span>
-        <IconButton label="Luk" onClick={close}>
+        <IconButton label={t('Luk')} onClick={close}>
           {Icon.close}
         </IconButton>
       </header>
@@ -65,19 +66,19 @@ export function Story({ sessionId }: { sessionId: string }) {
         <>
           <div className="story-main">
             <div className="story-copy" key="weight">
-              <p className="eyebrow">Vægt efter træning</p>
-              <p className="story-text">Hvad viste vægten i dag?</p>
+              <p className="eyebrow">{t('Vægt efter træning')}</p>
+              <p className="story-text">{t('Hvad viste vægten i dag?')}</p>
               <p className="story-sub">
-                {lastLogged ? `Sidst loggede du ${fmtKg(lastLogged.kg)} kg · ${relativeDay(lastLogged.at)}.` : 'Første gang du logger din vægt.'} Du kan
-                altid rette den under træningen i historikken.
+                {lastLogged ? t('Sidst loggede du {kg} kg · {when}.', { kg: fmtKg(lastLogged.kg), when: relativeDay(lastLogged.at) }) : t('Første gang du logger din vægt.')}{' '}
+                {t('Du kan altid rette den under træningen i historikken.')}
               </p>
             </div>
             <WeightPicker value={weight} onChange={setWeight} />
           </div>
           <div className="screen-actions">
-            <Button onClick={saveWeight}>Gem {fmtKg(weight)} kg</Button>
+            <Button onClick={saveWeight}>{t('Gem {kg} kg', { kg: fmtKg(weight) })}</Button>
             <Button variant="ghost" onClick={close}>
-              Spring over
+              {t('Spring over')}
             </Button>
           </div>
         </>
@@ -92,16 +93,16 @@ export function Story({ sessionId }: { sessionId: string }) {
               <p className="story-text">{slide.text}</p>
               {slide.sub && <p className={`story-sub ${slide.positive ? 'positive' : ''}`}>{slide.sub}</p>}
             </div>
-            <button className="story-zone left" onClick={prev} aria-label="Forrige" />
-            <button className="story-zone right" onClick={next} aria-label="Næste" />
+            <button className="story-zone left" onClick={prev} aria-label={t('Forrige')} />
+            <button className="story-zone right" onClick={next} aria-label={t('Næste')} />
           </div>
 
           <div className="story-foot">
             <span className="muted small">
-              {index + 1} af {total} · tryk for at gå videre
+              {t('{i} af {n} · tryk for at gå videre', { i: index + 1, n: total })}
             </span>
             <Button variant="secondary" className="btn-compact" onClick={close}>
-              Spring over
+              {t('Spring over')}
             </Button>
           </div>
         </>

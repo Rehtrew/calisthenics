@@ -8,6 +8,7 @@ import { isLegs } from '../lib/reps'
 import { BackButton, Button, Icon, IconButton, Stepper, Toggle, TopBar } from '../components/ui'
 import { ExerciseSheet } from '../components/ExerciseSheet'
 import { DEFAULT_REST_SECONDS, DEFAULT_SKIP_LEGS } from '../lib/defaults'
+import { dayName, t } from '../lib/i18n'
 
 
 export function Setup({ dayId }: { dayId: string }) {
@@ -53,22 +54,22 @@ export function Setup({ dayId }: { dayId: string }) {
 
       <section className="hero">
         <p className="eyebrow">
-          Opsætning
+          {t('Opsætning')}
           {day.focus ? ` · ${day.focus}` : ''}
         </p>
-        <h1 className="display day-title">{day.label}</h1>
+        <h1 className="display day-title">{dayName(day.label)}</h1>
         <p className="muted">
-          {included.length} øvelser · {totalSets} sæt · ca. {minutes} min
-          {last ? ` · Sidst ${relativeDay(last.endedAt)}` : ''}
+          {t('{n} øvelser · {sets} sæt · ca. {min} min', { n: included.length, sets: totalSets, min: minutes })}
+          {last ? t(' · Sidst {when}', { when: relativeDay(last.endedAt) }) : ''}
         </p>
       </section>
 
       <section className="card">
-        {hasLegs && <Toggle label="Spring ben over" hint="Squats, lunges, hiptrusts og calf raises" checked={skipLegs} onChange={setSkipLegs} />}
+        {hasLegs && <Toggle label={t('Spring ben over')} hint={t('Squats, lunges, hiptrusts og calf raises')} checked={skipLegs} onChange={setSkipLegs} />}
         <div className="field">
           <div>
-            <p className="field-label">Pause mellem sæt</p>
-            <p className="field-hint">Min : sek</p>
+            <p className="field-label">{t('Pause mellem sæt')}</p>
+            <p className="field-hint">{t('Min : sek')}</p>
           </div>
           <Stepper value={rest} min={30} max={600} step={15} onChange={setRest} format={fmtClock} />
         </div>
@@ -76,10 +77,10 @@ export function Setup({ dayId }: { dayId: string }) {
 
       <section className="section">
         <div className="row-head">
-          <p className="eyebrow">Rækkefølge</p>
+          <p className="eyebrow">{t('Rækkefølge')}</p>
           {changed && (
             <button className="link" onClick={() => setOrder(day.exercises.map((_, i) => i))}>
-              Nulstil
+              {t('Nulstil')}
             </button>
           )}
         </div>
@@ -92,14 +93,14 @@ export function Setup({ dayId }: { dayId: string }) {
                   <span className="exercise-name">{e.name}</span>
                   <span className="exercise-sub">
                     {e.sets} × {e.reps.toLowerCase()}
-                    {skipped ? ' · Springes over' : ''}
+                    {skipped ? t(' · Springes over') : ''}
                   </span>
                 </button>
                 <span className="exercise-actions">
-                  <IconButton label="Flyt op" disabled={pos === 0} onClick={() => move(pos, -1)}>
+                  <IconButton label={t('Flyt op')} disabled={pos === 0} onClick={() => move(pos, -1)}>
                     {Icon.up}
                   </IconButton>
-                  <IconButton label="Flyt ned" disabled={pos === order.length - 1} onClick={() => move(pos, 1)}>
+                  <IconButton label={t('Flyt ned')} disabled={pos === order.length - 1} onClick={() => move(pos, 1)}>
                     {Icon.down}
                   </IconButton>
                 </span>
@@ -111,10 +112,10 @@ export function Setup({ dayId }: { dayId: string }) {
 
       <div className="cta-bar">
         <Button onClick={start} disabled={included.length === 0}>
-          Start træning
+          {t('Start træning')}
         </Button>
         {s.active && (
-          <p className="muted small center">Den igangværende træning ({s.active.dayLabel}) gemmes som afbrudt</p>
+          <p className="muted small center">{t('Den igangværende træning ({day}) gemmes som afbrudt', { day: dayName(s.active.dayLabel) })}</p>
         )}
       </div>
 
